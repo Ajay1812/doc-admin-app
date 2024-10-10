@@ -1,10 +1,4 @@
-const {
-  Admin,
-  Patient,
-  Appointment,
-  Treatment,
-  Invoice,
-} = require("../db/db.js");
+const {Admin,Patient,Appointment,Treatment,Invoice} = require("../db/db.js");
 const { SECRET } = require("../middlewares/auth.js");
 const { authenticateJwt } = require("../middlewares/auth.js");
 const multer = require("multer");
