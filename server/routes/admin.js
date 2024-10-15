@@ -66,8 +66,12 @@ router.post("/addpatients", authenticateJwt, async (req, res) => {
 });
 // get all patients
 router.get("/patients", authenticateJwt, async (req, res) => {
-  const patients = await Patient.find({});
-  res.status(200).json({ patients });
+  try {
+    const patients = await Patient.find({});
+    res.status(200).json({ patients });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching patients", error });
+  }
 });
 
 // get the particular patient data
