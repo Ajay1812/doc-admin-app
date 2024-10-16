@@ -114,7 +114,7 @@ router.put('/patients/:id', authenticateJwt, async (req, res) => {
 
 
 
-// Appointment
+// Appointment Routes
 router.post("/appointments", authenticateJwt, async (req, res) => {
   try {
     const patient = await Patient.findOne({
@@ -122,11 +122,11 @@ router.post("/appointments", authenticateJwt, async (req, res) => {
       lastName: req.body.lastName,
       phone: req.body.phone,
     });
+    
     if (!patient) {
-      return res
-        .status(404)
-        .json({ message: "Patient not found. Please check the details." });
+      return res.status(404).json({ message: "Patient not found. Please check the details." });
     }
+    
     const patientId = patient._id;
     const newAppointment = new Appointment({
       patientId: patientId,
@@ -134,33 +134,37 @@ router.post("/appointments", authenticateJwt, async (req, res) => {
       reason: req.body.reason,
       status: "Scheduled",
     });
+    
     const savedAppointment = await newAppointment.save();
     res.status(201).json(savedAppointment);
   } catch (error) {
     res.status(500).json({ message: "Error creating appointment", error });
   }
 });
-// Appointment -> status - update
+
+// Appointment Status Update
 router.patch("/appointments/:id/status", authenticateJwt, async (req, res) => {
   try {
     const appointmentId = req.params.id;
     const newStatus = req.body.status;
+
     if (!["Scheduled", "Completed", "Cancelled"].includes(newStatus)) {
       return res.status(400).json({ message: "Invalid status value." });
     }
+    
     const updatedAppointment = await Appointment.findByIdAndUpdate(
       appointmentId,
       { status: newStatus },
       { new: true }
     );
+
     if (!updatedAppointment) {
-      res.status(404).json({ message: "Appointment not found" });
+      return res.status(404).json({ message: "Appointment not found" });
     }
+
     res.status(200).json(updatedAppointment);
-  } catch {
-    res
-      .status(500)
-      .json({ message: "Error updating appointment status.", error });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating appointment status.", error });
   }
 });
 

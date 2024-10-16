@@ -4,6 +4,7 @@ import { SignIn } from './components/Signin.jsx';
 import { Dashboard } from './components/Dashboard.jsx';
 import { PatientList } from './components/PatientsList.jsx';
 import { InvoiceList } from './components/InvoiceList.jsx';
+import { AppointmentsList } from './components/AppointmentsList.jsx';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/patients" element={<PatientList />} />
       <Route path="/invoices" element={<InvoiceList />} />
+      <Route path="/appointments" element={<AppointmentsList />} />
     </Routes>
   )
 }
