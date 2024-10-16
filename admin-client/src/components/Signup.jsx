@@ -57,7 +57,7 @@ export function SignUp() {
       <Card
         style={{
           width: "80%",
-          boxShadow: "0 12px 24px rgba(0, 0, 0, 0.15)",
+          boxShadow: "rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px",
           borderRadius: "12px",
           overflow: "hidden",
           animation: `${fadeIn} 0.8s ease`,
