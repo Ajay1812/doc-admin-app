@@ -28,13 +28,19 @@ export function AppointmentsList() {
     appointmentDate: '',
     reason: '',
   });
+  const [errorMessage, setErrorMessage] = useState('');
 
+  // Fetch all appointments
   const fetchAppointments = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/admin/appointments`);
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${BASE_URL}/admin/appointments`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log(response, token)
       setAppointments(response.data);
     } catch (error) {
-      console.error('Error fetching appointments:', error);
+      console.error('Error fetching appointments:', error.response?.data || error.message);
     }
   };
 
@@ -51,7 +57,7 @@ export function AppointmentsList() {
     e.preventDefault();
 
     try {
-      const token = localStorage.getItem('token'); // Retrieve the token from localStorage
+      const token = localStorage.getItem('token');
 
       // Check if the patient exists before creating an appointment
       const patientResponse = await axios.get(`${BASE_URL}/admin/patients`, {
@@ -63,25 +69,26 @@ export function AppointmentsList() {
       });
 
       if (patientResponse.data.length === 0) {
-        alert('Patient not found. Please check the details.');
-        return; // Exit if the patient does not exist
+        setErrorMessage('Patient not found. Please check the details.');
+        return;
       }
 
-      const patientId = patientResponse.data[0]._id; // Get the first patient ID from the response
+      const patientId = patientResponse.data[0]._id;
 
+      // Create new appointment with patientId
       const response = await axios.post(
         `${BASE_URL}/admin/appointments`,
-        { ...newAppointment, patientId }, // Include the patientId in the request
+        { ...newAppointment, patientId },
         {
           headers: {
-            Authorization: `Bearer ${token}`, // Include token in the headers
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
       console.log('Appointment added:', response.data);
-      fetchAppointments(); // Refresh the appointments list after adding a new one
-      handleClose(); // Close the dialog
+      fetchAppointments();
+      handleClose();
     } catch (error) {
       console.error('Error adding appointment:', error.response?.data || error.message);
       alert('Error adding appointment: ' + (error.response?.data.message || error.message));
@@ -97,6 +104,7 @@ export function AppointmentsList() {
       appointmentDate: '',
       reason: '',
     });
+    setErrorMessage('');
   };
 
   return (
@@ -118,9 +126,9 @@ export function AppointmentsList() {
           <TableBody>
             {appointments.map((appointment) => (
               <TableRow key={appointment._id}>
-                <TableCell>{appointment.firstName}</TableCell>
-                <TableCell>{appointment.lastName}</TableCell>
-                <TableCell>{appointment.phone}</TableCell>
+                <TableCell>{appointment.patient?.firstName}</TableCell>
+                <TableCell>{appointment.patient?.lastName}</TableCell>
+                <TableCell>{appointment.patient?.phone}</TableCell>
                 <TableCell>{new Date(appointment.appointmentDate).toLocaleDateString()}</TableCell>
                 <TableCell>{appointment.reason}</TableCell>
               </TableRow>
@@ -135,6 +143,7 @@ export function AppointmentsList() {
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Add New Appointment</DialogTitle>
         <DialogContent>
+          {errorMessage && <Typography color="error">{errorMessage}</Typography>}
           <TextField
             autoFocus
             margin="dense"

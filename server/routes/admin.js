@@ -115,6 +115,7 @@ router.put('/patients/:id', authenticateJwt, async (req, res) => {
 
 
 // Appointment Routes
+// Appointment Routes
 router.post("/appointments", authenticateJwt, async (req, res) => {
   try {
     const patient = await Patient.findOne({
@@ -122,25 +123,24 @@ router.post("/appointments", authenticateJwt, async (req, res) => {
       lastName: req.body.lastName,
       phone: req.body.phone,
     });
-    
+
     if (!patient) {
       return res.status(404).json({ message: "Patient not found. Please check the details." });
     }
-    
-    const patientId = patient._id;
+
     const newAppointment = new Appointment({
-      patientId: patientId,
+      patientId: patient._id,
       appointmentDate: req.body.appointmentDate,
       reason: req.body.reason,
       status: "Scheduled",
     });
-    
     const savedAppointment = await newAppointment.save();
     res.status(201).json(savedAppointment);
   } catch (error) {
-    res.status(500).json({ message: "Error creating appointment", error });
+    res.status(500).json({ message: "Error creating appointment", error: error.message });
   }
 });
+
 
 // Appointment Status Update
 router.patch("/appointments/:id/status", authenticateJwt, async (req, res) => {
