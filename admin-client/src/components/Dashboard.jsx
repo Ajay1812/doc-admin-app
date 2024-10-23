@@ -10,10 +10,17 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import LayersIcon from '@mui/icons-material/Layers';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import PersonIcon from '@mui/icons-material/Person';
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import IconButton from '@mui/material/IconButton';
+import MenuItem from '@mui/material/MenuItem';
+import Menu from '@mui/material/Menu';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import PatientList from './PatientsList.jsx';
 import { AppointmentsList } from './AppointmentsList.jsx';
+import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const NAVIGATION = [
   {
@@ -63,7 +70,8 @@ const NAVIGATION = [
     segment: 'patients',
     title: 'Patients',
     icon: <PersonIcon />,
-  }, {
+  },
+  {
     segment: 'appointments',
     title: 'Appointments',
     icon: <EventNoteIcon />,
@@ -117,6 +125,8 @@ export function Dashboard(props) {
   const { window } = props;
 
   const [pathname, setPathname] = React.useState('/dashboard');
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const navigator = useNavigate('')
 
   const router = React.useMemo(() => {
     return {
@@ -125,7 +135,29 @@ export function Dashboard(props) {
       navigate: (path) => setPathname(String(path)),
     };
   }, [pathname]);
+
   const demoWindow = window !== undefined ? window() : undefined;
+
+  const handleMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleMenuItemClick = (item) => {
+    console.log(`Clicked on: ${item}`);
+    localStorage.removeItem('token')
+    toast.success("Admin Logout!", {
+      position: "top-center",
+      autoClose: 1000,
+    });
+    setTimeout(() => {
+      navigator('/login')
+    }, 1000)
+    handleMenuClose();
+  };
 
   return (
     <AppProvider
@@ -135,8 +167,26 @@ export function Dashboard(props) {
       window={demoWindow}
     >
       <DashboardLayout>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 2 }}>
+          <IconButton onClick={handleMenuClick}>
+            <AccountCircle />
+          </IconButton>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+          >
+            <MenuItem onClick={() => handleMenuItemClick('Profile')}>
+              Profile
+            </MenuItem>
+            <MenuItem onClick={() => handleMenuItemClick('Logout')}>
+              Logout
+            </MenuItem>
+          </Menu>
+        </Box>
         <DemoPageContent pathname={pathname} />
       </DashboardLayout>
+      <ToastContainer />
     </AppProvider>
   );
 }

@@ -30,16 +30,22 @@ export function SignIn() {
       });
       if (!response.ok) {
         const errorData = await response.json();
+        toast.error("Login Failed!", {
+          position: "top-center",
+          autoClose: 1000,
+        });
         setError(errorData.message || "Login failed");
         return;
       }
       const data = await response.json();
       localStorage.setItem("token", data.token);
-      navigate("/dashboard");
       toast.success("Login successful!", {
         position: "top-center",
         autoClose: 2000,
       });
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1000)
     } catch (err) {
       setError("An error occurred. Please try again.");
     }
@@ -213,7 +219,6 @@ export function SignIn() {
           </Grid>
         </Card>
       </div >
-
       <ToastContainer />
     </>
   );
