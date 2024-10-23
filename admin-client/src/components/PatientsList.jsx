@@ -17,7 +17,9 @@ import {
   Grid,
 } from '@mui/material';
 import EditDialog from './EditDialog';
-import MenuIcon from '@mui/icons-material/Menu';
+import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 export function PatientList() {
   const [patients, setPatients] = useState([]);
@@ -25,7 +27,7 @@ export function PatientList() {
   const [error, setError] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedPatientId, setSelectedPatientId] = useState(null);
-  const [drawerOpen, setDrawerOpen] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [newPatient, setNewPatient] = useState({
     firstName: '',
     lastName: '',
@@ -77,6 +79,10 @@ export function PatientList() {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
         refreshPatients();
+        toast.success("Patient Deleted successfully!", {
+          position: "top-center",
+          autoClose: 2000,
+        });
       } catch (error) {
         console.error('Error deleting patient:', error);
       }
@@ -98,7 +104,11 @@ export function PatientList() {
         address: '',
         medicalHistory: [],
       });
-      setDrawerOpen(false);
+      setDrawerOpen(true);
+      toast.success("Patient added successfully!", {
+        position: "top-center",
+        autoClose: 2000,
+      });
     } catch (error) {
       console.error('Error adding patient:', error);
     }
@@ -113,11 +123,6 @@ export function PatientList() {
 
   return (
     <>
-      {/* Toggle Button for Drawer */}
-      <IconButton onClick={toggleDrawer} style={{ margin: '20px 0 20px 20px' }}>
-        <MenuIcon fontSize='large' />
-      </IconButton>
-
       <Drawer
         anchor="right"
         open={drawerOpen}
@@ -185,25 +190,30 @@ export function PatientList() {
           </div>
         </div>
       </Drawer>
-
       <Grid container spacing={2} justifyContent={'center'}>
         <Grid item xs={12} md={8}>
           <div style={{ display: "flex", justifyContent: "center", margin: "20px 0 20px 0" }}>
             <Typography variant='h4'>Patients List</Typography>
+            <div style={{ position: 'absolute', right: "12rem" }}>
+              <IconButton onClick={toggleDrawer}>
+                <AddBoxOutlinedIcon fontSize='large' />
+              </IconButton>
+            </div>
           </div>
+          <br />
           <div style={{ display: "flex", justifyContent: "center" }}>
-            <TableContainer component={Paper}>
+            <TableContainer style={{ border: "1px solid black" }} component={Paper}>
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell style={{ fontWeight: 'bold' }}>First Name</TableCell>
-                    <TableCell style={{ fontWeight: 'bold' }}>Last Name</TableCell>
-                    <TableCell style={{ fontWeight: 'bold' }}>Phone</TableCell>
-                    <TableCell style={{ fontWeight: 'bold' }}>Address</TableCell>
-                    <TableCell style={{ fontWeight: 'bold' }}>Actions</TableCell>
+                    <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>First Name</TableCell>
+                    <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>Last Name</TableCell>
+                    <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>Phone</TableCell>
+                    <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>Address</TableCell>
+                    <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
-                <TableBody>
+                <TableBody >
                   {patients.map(patient => (
                     <TableRow key={patient._id}>
                       <TableCell>{patient.firstName}</TableCell>
@@ -235,6 +245,7 @@ export function PatientList() {
         patientId={selectedPatientId}
         refreshPatients={refreshPatients}
       />
+      <ToastContainer />
     </>
   );
 };

@@ -35,12 +35,12 @@ export function AppointmentsList() {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(`${BASE_URL}/admin/appointments`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}` }, // Use GET and include token in headers
       });
-      console.log(response, token)
       setAppointments(response.data);
     } catch (error) {
       console.error('Error fetching appointments:', error.response?.data || error.message);
+      setErrorMessage('Failed to fetch appointments.'); // Set error message for user feedback
     }
   };
 
@@ -60,24 +60,26 @@ export function AppointmentsList() {
       const token = localStorage.getItem('token');
 
       // Check if the patient exists before creating an appointment
-      const patientResponse = await axios.get(`${BASE_URL}/admin/patients`, {
+      const patientResponse = await axios.get(`${BASE_URL}/admin/patients/`, {
         params: {
           firstName: newAppointment.firstName,
           lastName: newAppointment.lastName,
           phone: newAppointment.phone,
         },
       });
+      console.log(patientResponse);
 
-      if (patientResponse.data.length === 0) {
+      // Check if data is an array and has at least one patient
+      if (!Array.isArray(patientResponse.data) || patientResponse.data.length === 0) {
         setErrorMessage('Patient not found. Please check the details.');
         return;
       }
 
-      const patientId = patientResponse.data[0]._id;
+      const patientId = patientResponse.data[0]._id; // Now this is safe to access
 
       // Create new appointment with patientId
       const response = await axios.post(
-        `${BASE_URL}/admin/appointments`,
+        `${BASE_URL}/admin/appointment/`,
         { ...newAppointment, patientId },
         {
           headers: {
@@ -94,6 +96,7 @@ export function AppointmentsList() {
       alert('Error adding appointment: ' + (error.response?.data.message || error.message));
     }
   };
+
 
   const handleClose = () => {
     setOpen(false);

@@ -7,6 +7,18 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
 const upload = require("../middlewares/upload.js");
+const nodemailer = require("nodemailer");
+const bcrypt = require("bcrypt");
+require("dotenv").config();
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_PASS,
+  },
+});
+
 
 router.get("/me", authenticateJwt, async (req, res) => {
   const username = req.admin.username;
@@ -24,7 +36,8 @@ router.post("/signup", async (req, res) => {
   if (admin) {
     res.status(403).json({ message: "Admin already exists" });
   } else {
-    const newAdmin = new Admin({ username, email, password });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newAdmin = new Admin({ username, email, password: hashedPassword });
     await newAdmin.save();
     const token = jwt.sign({ username, role: "admin" }, SECRET, {
       expiresIn: "1h",
@@ -35,16 +48,104 @@ router.post("/signup", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
-  const admin = await Admin.findOne({ email, password });
-  if (admin) {
-    const token = jwt.sign({ email, role: "admin" }, SECRET, {
-      expiresIn: "1h",
-    });
+  try{
+    const admin = await Admin.findOne({ email });
+    if (!admin || !bcrypt.compare(password, admin.password)) {
+      return res.status(401).json({ message: "Invalid username or password" });
+    }
+    const token = jwt.sign({ email, role: "admin" }, SECRET, {expiresIn: "1h"});
     res.status(200).json({ message: "Logged in successfully", token: token });
-  } else {
-    res.status(403).json({ message: "Invalid email or password" });
+  } catch (error) {
+    res.status(403).json({ message: "Invalid email or password" , error});
   }
 });
+
+// Send Email for reset password
+router.post("/sendpasswordlink", async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(401).json({ message: "Enter your Email." });
+  }
+
+  try {
+    const admin = await Admin.findOne({ email });
+    if (!admin) {
+      return res.status(404).json({ message: "Admin not found." });
+    }
+
+    const token = jwt.sign({ _id: admin._id }, SECRET, {
+      expiresIn: "120s",
+    });
+
+    const setAdminToken = await Admin.findByIdAndUpdate(
+      { _id: admin._id },
+      { verifyToken: token },
+      { new: true }
+    );
+
+    if (setAdminToken) {
+      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+      console.log("Frontend URL:", frontendUrl);
+      const mailOptions = {
+        from: process.env.GMAIL_USER,
+        to: email,
+        subject: "Sending Email for Password Reset",
+        text: `This Link is valid for 2 minutes: ${frontendUrl}/forgotpassword/${admin.id}/${setAdminToken.verifyToken}`,
+      };
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.log("Error:", error);
+          return res.status(401).json({ message: "Email not sent" });
+        } else {
+          console.log("Email sent:", info.response);
+          return res
+            .status(201)
+            .json({ status: 201, message: "Email sent successfully" });
+        }
+      });
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(401).json({ message: "Invalid Admin" });
+  }
+});
+
+// verify admin for forgot password
+router.get("/forgotpassword/:id/:token", async (req, res) => {
+  const { id, token } = req.params;
+  try {
+    const validAdmin = await Admin.findOne({ _id: id });
+    const verifyToken = jwt.verify(token,SECRET ) 
+    // console.log(verifyToken)
+    if (validAdmin && verifyToken._id){
+      res.status(201).json({status:201, validAdmin})
+    }else{
+      res.status(401).json({status:401, message: "Admin not exist"})
+    }
+  } catch (error) {
+    res.status(401).json({status:401, message: error})
+  }
+});
+// Change password
+router.post('/:id/:token', async (req,res)=>{
+  const {id, token} = req.params
+  const {password} = req.body
+  try {
+    const validAdmin = await Admin.findOne({ _id: id });
+    const verifyToken = jwt.verify(token,SECRET ) 
+    // console.log(verifyToken)
+    if (validAdmin && verifyToken._id){
+      const newPassword = await bcrypt.hash(password, 10)
+      const setNewAdminPass = await Admin.findByIdAndUpdate({_id: id}, {password: newPassword})
+      setNewAdminPass.save()
+      res.status(201).json({status:201, setNewAdminPass})
+    }else{
+      res.status(401).json({status:401, message: "Admin not exist"})
+    }
+  } catch (error) {
+    res.status(404).json({status:404, message: error})
+  }
+}) 
 
 router.post("/addpatients", authenticateJwt, async (req, res) => {
   try {
@@ -112,9 +213,6 @@ router.put('/patients/:id', authenticateJwt, async (req, res) => {
   }
 });
 
-
-
-// Appointment Routes
 // Appointment Routes
 router.post("/appointments", authenticateJwt, async (req, res) => {
   try {
@@ -123,11 +221,9 @@ router.post("/appointments", authenticateJwt, async (req, res) => {
       lastName: req.body.lastName,
       phone: req.body.phone,
     });
-
     if (!patient) {
       return res.status(404).json({ message: "Patient not found. Please check the details." });
     }
-
     const newAppointment = new Appointment({
       patientId: patient._id,
       appointmentDate: req.body.appointmentDate,
@@ -140,7 +236,6 @@ router.post("/appointments", authenticateJwt, async (req, res) => {
     res.status(500).json({ message: "Error creating appointment", error: error.message });
   }
 });
-
 
 // Appointment Status Update
 router.patch("/appointments/:id/status", authenticateJwt, async (req, res) => {

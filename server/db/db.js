@@ -1,17 +1,30 @@
 const mongoose = require("mongoose");
+const bcrypt = require('bcrypt')
 
 const adminSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  verifyToken:{type: String},
   createdAt: { type: Date, default: Date.now },
 });
+
+adminSchema.pre('save', async function (next) {
+  try {
+    const salt = await bcrypt.genSalt(10)
+    const hashedPass = await bcrypt.hash(this.password, salt)
+    this.password = hashedPass
+    next()
+  } catch (error) {
+    next(error)
+  }
+})
 
 const patientSchema = new mongoose.Schema({
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
   dateOfBirth: { type: Date },
-  age: { type: Number, required: true },
+  age: { type: Number},
   phone: { type: String, required: true },
   address: { type: String },
   medicalHistory: [{ type: String }],
