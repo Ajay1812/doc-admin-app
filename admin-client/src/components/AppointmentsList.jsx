@@ -301,7 +301,7 @@ export const AppointmentsList = () => {
                 {appointments.map((appointment) => (
                   <TableRow key={appointment._id}>
                     <TableCell>{appointment._id}</TableCell>
-                    <TableCell>{`${appointment.firstName} ${appointment.lastName}`}</TableCell>
+                    <TableCell>{`${appointment.firstName.toUpperCase()} ${appointment.lastName.toUpperCase()}`}</TableCell>
                     <TableCell>{appointment.phone}</TableCell>
                     <TableCell>{new Date(appointment.appointmentDate).toLocaleString()}</TableCell>
                     <TableCell>{appointment.reason}</TableCell>

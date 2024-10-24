@@ -194,11 +194,10 @@ export const Treatments = () => {
             <Typography marginBottom={"5px"}><strong>Date:</strong> {date}</Typography>
             <Typography marginBottom={"5px"}><strong>Notes:</strong> {notes}</Typography>
           </div>
-
           {imagePreviewUrl && (
             <Box mt={2}>
               <Typography><strong>X-ray Image:</strong></Typography>
-              <img src={imagePreviewUrl} alt="X-ray Preview" style={{ width: '100%', maxHeight: '25rem', objectFit: 'contain' }} />
+              <img src={imagePreviewUrl} alt="X-ray Preview" style={{ width: '100%', maxHeight: '25rem', objectFit: 'contain', marginTop: "2rem" }} />
             </Box>
           )}
         </Box>

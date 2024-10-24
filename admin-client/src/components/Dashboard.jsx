@@ -88,8 +88,8 @@ const demoTheme = createTheme({
   cssVariables: {
     colorSchemeSelector: 'data-toolpad-color-scheme',
   },
-  colorSchemes: { light: true, dark: true },
-  // colorSchemes: { light: true },
+  // colorSchemes: { light: true, dark: true },
+  colorSchemes: { light: true },
   breakpoints: {
     values: {
       xs: 0,
@@ -171,6 +171,10 @@ export function Dashboard(props) {
 
   return (
     <AppProvider
+      branding={{
+        logo: <img src='https://mui.com/static/logo.png' alt="DANTVEDA logo" />,
+        title: 'DANTVEDA',
+      }}
       navigation={NAVIGATION}
       router={router}
       theme={demoTheme}
