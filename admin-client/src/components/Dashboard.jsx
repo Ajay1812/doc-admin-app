@@ -12,12 +12,14 @@ import EventNoteIcon from '@mui/icons-material/EventNote';
 import PersonIcon from '@mui/icons-material/Person';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import IconButton from '@mui/material/IconButton';
+import MedicationLiquidOutlinedIcon from '@mui/icons-material/MedicationLiquidOutlined';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import PatientList from './PatientsList.jsx';
 import { AppointmentsList } from './AppointmentsList.jsx';
+import { Treatments } from './Treatments.jsx';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
@@ -75,7 +77,11 @@ const NAVIGATION = [
     segment: 'appointments',
     title: 'Appointments',
     icon: <EventNoteIcon />,
-  },
+  }, {
+    segment: 'treatments',
+    title: "Treatments",
+    icon: <MedicationLiquidOutlinedIcon />,
+  }
 ];
 
 const demoTheme = createTheme({
@@ -83,6 +89,7 @@ const demoTheme = createTheme({
     colorSchemeSelector: 'data-toolpad-color-scheme',
   },
   colorSchemes: { light: true, dark: true },
+  // colorSchemes: { light: true },
   breakpoints: {
     values: {
       xs: 0,
@@ -100,6 +107,9 @@ function DemoPageContent({ pathname }) {
   }
   if (pathname === '/appointments') {
     return <AppointmentsList />;
+  }
+  if (pathname === '/treatments') {
+    return <Treatments />
   }
 
   return (

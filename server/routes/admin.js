@@ -85,7 +85,7 @@ router.post("/sendpasswordlink", async (req, res) => {
 
     if (setAdminToken) {
       const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-      console.log("Frontend URL:", frontendUrl);
+      // console.log("Frontend URL:", frontendUrl);
       const mailOptions = {
         from: process.env.GMAIL_USER,
         to: email,
@@ -97,7 +97,7 @@ router.post("/sendpasswordlink", async (req, res) => {
           console.log("Error:", error);
           return res.status(401).json({ message: "Email not sent" });
         } else {
-          console.log("Email sent:", info.response);
+          // console.log("Email sent:", info.response);
           return res
             .status(201)
             .json({ status: 201, message: "Email sent successfully" });
@@ -214,13 +214,24 @@ router.put('/patients/:id', authenticateJwt, async (req, res) => {
 });
 
 // Appointment Routes
-router.post("/appointments", authenticateJwt, async (req, res) => {
+
+router.get("/appointments", authenticateJwt, async (req, res) => {
+  try {
+    const appointments = await Appointment.find({});
+    res.status(200).json({ appointments });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching appointments", error });
+  }
+});
+
+router.post("/add-appointments", authenticateJwt, async (req, res) => {
   try {
     const patient = await Patient.findOne({
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       phone: req.body.phone,
     });
+    // console.log(patient)
     if (!patient) {
       return res.status(404).json({ message: "Patient not found. Please check the details." });
     }
@@ -263,6 +274,20 @@ router.patch("/appointments/:id/status", authenticateJwt, async (req, res) => {
   }
 });
 
+// Delete a patient
+router.delete('/delete-appointment/:id', authenticateJwt, async (req, res) => {
+  const { id } = req.params;  
+  try {
+    const deleteAppointment = await Appointment.findByIdAndDelete(id);
+    if (!deleteAppointment) {
+      return res.status(404).json({ message: 'Appointment not found' });
+    }
+    res.status(200).json({ message: 'Appointment deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting patient', error });
+  }
+});
+
 // Treatment - patients/id/treatment
 router.post("/patients/:patientId/treatments",upload.single("xrayImage"),async (req, res) => {
     try {
@@ -270,14 +295,14 @@ router.post("/patients/:patientId/treatments",upload.single("xrayImage"),async (
       const { procedure, cost, date, notes } = req.body;
       const xrayImagePath = req.file
         ? `/assets/XRays/${req.file.filename}`
-        : null; // Store path if image uploaded
+        : null; 
       const newTreatment = new Treatment({
         patientId: patientId,
         treatmentDetails: {
           procedure: procedure,
           cost: cost,
           date: date,
-          xrayImagePath: xrayImagePath, // Use the uploaded image path
+          xrayImagePath: xrayImagePath, 
         },
         notes: notes || "",
       });

@@ -1,7 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { BASE_URL } from '../config';
+import React, { useState, useEffect } from 'react';
 import {
+  TextField,
+  Button,
+  Typography,
+  Grid,
+  MenuItem,
+  CircularProgress,
+  Alert,
   Table,
   TableBody,
   TableCell,
@@ -9,206 +14,324 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Typography,
-  Button,
-  TextField,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
 } from '@mui/material';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import dayjs from 'dayjs';
+import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
+import LocalHospitalRoundedIcon from '@mui/icons-material/LocalHospitalRounded';
+import DoneOutlineOutlinedIcon from '@mui/icons-material/DoneOutlineOutlined';
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
+import { BASE_URL } from '../config';
 
-export function AppointmentsList() {
+export const AppointmentsList = () => {
+  const [patients, setPatients] = useState([]);
   const [appointments, setAppointments] = useState([]);
-  const [open, setOpen] = useState(false);
-  const [newAppointment, setNewAppointment] = useState({
-    firstName: '',
-    lastName: '',
-    phone: '',
-    appointmentDate: '',
-    reason: '',
-  });
-  const [errorMessage, setErrorMessage] = useState('');
+  const [selectedPatient, setSelectedPatient] = useState('');
+  const [appointmentDate, setAppointmentDate] = useState(dayjs());
+  const [reason, setReason] = useState('');
+  const [status, setStatus] = useState('Scheduled');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  // Fetch all appointments
-  const fetchAppointments = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`${BASE_URL}/admin/appointments`, {
-        headers: { Authorization: `Bearer ${token}` }, // Use GET and include token in headers
-      });
-      setAppointments(response.data);
-    } catch (error) {
-      console.error('Error fetching appointments:', error.response?.data || error.message);
-      setErrorMessage('Failed to fetch appointments.'); // Set error message for user feedback
-    }
-  };
-
+  // Fetch patients once on mount
   useEffect(() => {
-    fetchAppointments();
+    const fetchPatients = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}/admin/patients`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        setPatients(response.data.patients);
+      } catch (err) {
+        setError('Error fetching patients');
+      }
+    };
+
+    fetchPatients();
   }, []);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewAppointment((prev) => ({ ...prev, [name]: value }));
-  };
+  // Fetch appointments once patients are loaded
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}/admin/appointments`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const appointmentsWithPatientNames = response.data.appointments.map(appointment => {
+          const patient = patients.find(p => p._id === appointment.patientId);
+          return {
+            ...appointment,
+            firstName: patient ? patient.firstName : 'Unknown',
+            lastName: patient ? patient.lastName : 'Unknown',
+            phone: patient ? patient.phone : 'Unknown',
+          };
+        });
+
+        setAppointments(appointmentsWithPatientNames);
+      } catch (err) {
+        setError('Error fetching appointments');
+      }
+    };
+
+    if (patients.length) {
+      fetchAppointments();
+    }
+  }, [patients]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
 
     try {
-      const token = localStorage.getItem('token');
+      const selectedPatientDetails = patients.find(
+        (patient) => patient._id === selectedPatient
+      );
 
-      // Check if the patient exists before creating an appointment
-      const patientResponse = await axios.get(`${BASE_URL}/admin/patients/`, {
-        params: {
-          firstName: newAppointment.firstName,
-          lastName: newAppointment.lastName,
-          phone: newAppointment.phone,
-        },
-      });
-      console.log(patientResponse);
-
-      // Check if data is an array and has at least one patient
-      if (!Array.isArray(patientResponse.data) || patientResponse.data.length === 0) {
-        setErrorMessage('Patient not found. Please check the details.');
+      if (!selectedPatientDetails) {
+        setError('Selected patient not found');
         return;
       }
 
-      const patientId = patientResponse.data[0]._id; // Now this is safe to access
-
-      // Create new appointment with patientId
       const response = await axios.post(
-        `${BASE_URL}/admin/appointment/`,
-        { ...newAppointment, patientId },
+        `${BASE_URL}/admin/add-appointments`,
+        {
+          firstName: selectedPatientDetails.firstName,
+          lastName: selectedPatientDetails.lastName,
+          phone: selectedPatientDetails.phone,
+          appointmentDate,
+          reason,
+          status,
+        },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json',
           },
         }
       );
+      toast.success("Appointment added successfully!", {
+        position: "top-center",
+        autoClose: 2000,
+      });
+      setSelectedPatient('');
+      setAppointmentDate(dayjs());
+      setReason('');
 
-      console.log('Appointment added:', response.data);
-      fetchAppointments();
-      handleClose();
-    } catch (error) {
-      console.error('Error adding appointment:', error.response?.data || error.message);
-      alert('Error adding appointment: ' + (error.response?.data.message || error.message));
+      setAppointments((prevAppointments) => [
+        ...prevAppointments,
+        {
+          _id: response.data._id,
+          firstName: selectedPatientDetails.firstName,
+          lastName: selectedPatientDetails.lastName,
+          phone: selectedPatientDetails.phone,
+          appointmentDate,
+          reason,
+          status,
+        },
+      ]);
+    } catch (err) {
+      setError('Error adding appointment. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
+  const handleDelete = async (appointmentId) => {
+    setLoading(true);
+    setError('');
+    if (window.confirm('Are you sure you want to delete this patient?')) {
+      try {
+        await axios.delete(`${BASE_URL}/admin/delete-appointment/${appointmentId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json',
+          },
+        });
 
-  const handleClose = () => {
-    setOpen(false);
-    setNewAppointment({
-      firstName: '',
-      lastName: '',
-      phone: '',
-      appointmentDate: '',
-      reason: '',
-    });
-    setErrorMessage('');
+        setAppointments((prevAppointments) =>
+          prevAppointments.filter((appointment) => appointment._id !== appointmentId)
+        );
+        toast.success("Appointment deleted successfully", {
+          position: "top-center",
+          autoClose: 2000,
+        });
+      } catch (err) {
+        setError('Error deleting appointment. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      setLoading(false);
+    }
+  };
+
+  const handleSchedule = async (appointmentId) => {
+    try {
+      setLoading(true);
+      setError('');
+      await axios.patch(`${BASE_URL}/admin/appointments/${appointmentId}/status`, {
+        status: 'Completed',
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      setAppointments((prevAppointments) =>
+        prevAppointments.map((appointment) =>
+          appointment._id === appointmentId ? { ...appointment, status: 'Completed' } : appointment
+        )
+      );
+      toast.success("Appointment Completed successfully", {
+        position: "top-center",
+        autoClose: 2000,
+      });
+    } catch (err) {
+      setError('Failed to update status');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <Paper style={{ padding: '20px' }}>
-      <Typography variant="h5" component="h2" gutterBottom>
-        Appointments
-      </Typography>
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>First Name</TableCell>
-              <TableCell>Last Name</TableCell>
-              <TableCell>Phone</TableCell>
-              <TableCell>Appointment Date</TableCell>
-              <TableCell>Reason</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {appointments.map((appointment) => (
-              <TableRow key={appointment._id}>
-                <TableCell>{appointment.patient?.firstName}</TableCell>
-                <TableCell>{appointment.patient?.lastName}</TableCell>
-                <TableCell>{appointment.patient?.phone}</TableCell>
-                <TableCell>{new Date(appointment.appointmentDate).toLocaleDateString()}</TableCell>
-                <TableCell>{appointment.reason}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <Button variant="contained" color="primary" onClick={() => setOpen(true)} style={{ marginTop: '20px' }}>
-        Add Appointment
-      </Button>
+    <>
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "1.5rem" }}>
+            <Typography variant="h4">Add Appointment</Typography>
+          </div>
+        </Grid>
 
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Add New Appointment</DialogTitle>
-        <DialogContent>
-          {errorMessage && <Typography color="error">{errorMessage}</Typography>}
+        {error && (
+          <Grid item xs={12}>
+            <Alert severity="error">{error}</Alert>
+          </Grid>
+        )}
+        <Grid item xs={12} md={6} marginLeft={"2.5rem"}>
           <TextField
-            autoFocus
-            margin="dense"
-            label="First Name"
-            type="text"
+            select
+            label="Select Patient"
+            value={selectedPatient}
+            onChange={(e) => setSelectedPatient(e.target.value)}
             fullWidth
-            variant="outlined"
-            name="firstName"
-            value={newAppointment.firstName}
-            onChange={handleInputChange}
-          />
+            required
+          >
+            {patients.map((patient) => (
+              <MenuItem key={patient._id} value={patient._id}>
+                {patient.firstName} {patient.lastName} - {patient.phone}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+
+        <Grid item xs={12} md={6} marginLeft={"2.5rem"}>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DateTimePicker
+              disablePast
+              label="Appointment Date & Time"
+              value={appointmentDate}
+              onChange={(newValue) => {
+                if (newValue && newValue.isValid()) {
+                  setAppointmentDate(newValue);
+                } else {
+                  setError("Invalid date");
+                }
+              }}
+              renderInput={(params) => <TextField {...params} />}
+              required
+            />
+          </LocalizationProvider>
+        </Grid>
+
+        <Grid item xs={12} md={6} marginLeft={"2.5rem"}>
           <TextField
-            margin="dense"
-            label="Last Name"
-            type="text"
-            fullWidth
-            variant="outlined"
-            name="lastName"
-            value={newAppointment.lastName}
-            onChange={handleInputChange}
-          />
-          <TextField
-            margin="dense"
-            label="Phone"
-            type="text"
-            fullWidth
-            variant="outlined"
-            name="phone"
-            value={newAppointment.phone}
-            onChange={handleInputChange}
-          />
-          <TextField
-            margin="dense"
-            label="Appointment Date"
-            type="date"
-            fullWidth
-            variant="outlined"
-            name="appointmentDate"
-            value={newAppointment.appointmentDate}
-            onChange={handleInputChange}
-            InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            margin="dense"
             label="Reason"
-            type="text"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
             fullWidth
-            variant="outlined"
-            name="reason"
-            value={newAppointment.reason}
-            onChange={handleInputChange}
+            required
           />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} color="primary">
-            Add
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Paper>
+        </Grid>
+
+        <Grid item xs={12}>
+          {loading ? (
+            <CircularProgress />
+          ) : (
+            <div style={{ marginLeft: "2.5rem", marginBottom: "2.5rem" }}>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleSubmit}
+                startIcon={<LocalHospitalRoundedIcon />}
+                disabled={!selectedPatient || !appointmentDate || !reason}
+              >
+                Add Appointment
+              </Button>
+            </div>
+          )}
+        </Grid>
+
+        {/* Appointments Table */}
+        <Grid item xs={12}>
+          <TableContainer style={{ border: "1px solid black" }} component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>ID</TableCell>
+                  <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>Patient Name</TableCell>
+                  <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>Phone</TableCell>
+                  <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>Appointment Date</TableCell>
+                  <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>Reason</TableCell>
+                  <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>Status</TableCell>
+                  <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {appointments.map((appointment) => (
+                  <TableRow key={appointment._id}>
+                    <TableCell>{appointment._id}</TableCell>
+                    <TableCell>{`${appointment.firstName} ${appointment.lastName}`}</TableCell>
+                    <TableCell>{appointment.phone}</TableCell>
+                    <TableCell>{new Date(appointment.appointmentDate).toLocaleString()}</TableCell>
+                    <TableCell>{appointment.reason}</TableCell>
+                    <TableCell>{appointment.status}
+                      {appointment.status === 'Scheduled' && (
+                        <Button
+                          color="success"
+                          startIcon={<DoneOutlineOutlinedIcon />}
+                          onClick={() => handleSchedule(appointment._id)}
+                          disabled={loading}
+                        >
+                        </Button>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        color="error"
+                        startIcon={<DeleteForeverOutlinedIcon />}
+                        onClick={() => handleDelete(appointment._id)}
+                      >
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Grid>
+      </Grid>
+      <ToastContainer />
+    </>
   );
-}
+};

@@ -4,6 +4,9 @@ import axios from 'axios';
 import { BASE_URL } from '../config.js';
 import EditDialog from './EditDialog';
 import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
+import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
+import LocalHospitalRoundedIcon from '@mui/icons-material/LocalHospitalRounded';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -170,60 +173,55 @@ export function PatientList() {
             margin="normal"
           />
           <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
-            <Button variant="contained" color="primary" onClick={handleAddPatient}>
+            <Button variant="contained" color="primary" startIcon={<LocalHospitalRoundedIcon />} onClick={handleAddPatient}>
               Add Patient
             </Button>
           </div>
         </div>
       </Drawer>
-      <Grid container spacing={2} justifyContent={'center'}>
-        <Grid item xs={12} md={8}>
-          <div style={{ display: "flex", justifyContent: "center", margin: "20px 0 20px 0" }}>
-            <Typography variant='h4'>Patients List</Typography>
-            <div style={{ position: 'absolute', right: "12rem" }}>
-              <IconButton onClick={toggleDrawer}>
-                <AddBoxOutlinedIcon fontSize='large' />
-              </IconButton>
-            </div>
-          </div>
-          <br />
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <TableContainer style={{ border: "1px solid black" }} component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>First Name</TableCell>
-                    <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>Last Name</TableCell>
-                    <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>Phone</TableCell>
-                    <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>Address</TableCell>
-                    <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody >
-                  {patients.map(patient => (
-                    <TableRow key={patient._id}>
-                      <TableCell>{patient.firstName}</TableCell>
-                      <TableCell>{patient.lastName}</TableCell>
-                      <TableCell>{patient.phone}</TableCell>
-                      <TableCell>{patient.address}</TableCell>
-                      <TableCell>
-                        <div style={{ display: "flex", gap: "10px" }}>
-                          <Button variant="contained" color="primary" onClick={() => handleOpenDialog(patient._id)}>
-                            Edit
-                          </Button>
-                          <Button variant="contained" color="secondary" onClick={() => handleDelete(patient._id)}>
-                            Delete
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+      <Grid container spacing={2} justifyContent="center">
+        <Grid item xs={12}>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '20px' }}>
+            <Typography marginRight="1.3rem" variant="h4">Patients List</Typography>
+            <IconButton onClick={toggleDrawer}>
+              <AddBoxOutlinedIcon color='primary' fontSize='large' />
+            </IconButton>
           </div>
         </Grid>
-      </Grid >
+
+        {/* Table Container */}
+        <Grid item xs={12}>
+          <TableContainer component={Paper} style={{ width: '100%' }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>Patient Name</TableCell>
+                  <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>Phone</TableCell>
+                  <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>Address</TableCell>
+                  <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>Medical History</TableCell>
+                  <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {patients.map(patient => (
+                  <TableRow key={patient._id}>
+                    <TableCell>{patient.firstName.toUpperCase()} {patient.lastName.toUpperCase()}</TableCell>
+                    <TableCell>{patient.phone}</TableCell>
+                    <TableCell>{patient.address}</TableCell>
+                    <TableCell>{patient.medicalHistory}</TableCell>
+                    <TableCell>
+                      <div style={{ display: 'flex', gap: '5px' }}>
+                        <Button color="primary" startIcon={<EditOutlinedIcon />} onClick={() => handleOpenDialog(patient._id)}></Button>
+                        <Button color='error' startIcon={<DeleteForeverOutlinedIcon />} onClick={() => handleDelete(patient._id)}></Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Grid>
+      </Grid>
 
       <EditDialog
         open={openDialog}

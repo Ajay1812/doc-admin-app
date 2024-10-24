@@ -8,6 +8,7 @@ import { NotFound } from './components/NotFound.jsx';
 import { ForgotPassword } from './components/ForgotPassword.jsx';
 import { PasswordReset } from './components/PasswordReset.jsx';
 import { AppointmentsList } from './components/AppointmentsList.jsx';
+import { Treatments } from './components/Treatments.jsx';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
       <Route path="/patients" element={<PatientList />} />
       <Route path="/invoices" element={<InvoiceList />} />
       <Route path="/appointments" element={<AppointmentsList />} />
+      <Route path="/treatments" element={<Treatments />} />
       <Route path="/password-reset" element={<PasswordReset />} />
       <Route path="/forgotpassword/:id/:token" element={<ForgotPassword />} />
     </Routes>
