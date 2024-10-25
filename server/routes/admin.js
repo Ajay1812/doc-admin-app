@@ -1,6 +1,6 @@
-const {Admin,Patient,Appointment,Treatment,Invoice} = require("../db/db.js");
-const { SECRET } = require("../middlewares/auth.js");
-const { authenticateJwt } = require("../middlewares/auth.js");
+const { Admin, Patient, Appointment, Treatment, Invoice } = require("../db/db.js");
+// const { signupSchema, loginSchema } = require('../middlewares/validationSchemas.js');
+const { SECRET, authenticateJwt } = require("../middlewares/auth.js");
 const multer = require("multer");
 const path = require("path");
 const express = require("express");
@@ -18,7 +18,6 @@ const transporter = nodemailer.createTransport({
     pass: process.env.GMAIL_PASS,
   },
 });
-
 
 router.get("/me", authenticateJwt, async (req, res) => {
   const username = req.admin.username;
@@ -287,6 +286,19 @@ router.delete('/delete-appointment/:id', authenticateJwt, async (req, res) => {
     res.status(500).json({ message: 'Error deleting patient', error });
   }
 });
+
+// In your routes file
+router.get('/treatments', async (req, res) => {
+  try {
+      const treatments = await Treatment.find()
+          .populate('patientId', 'firstName lastName')
+          .exec();
+      res.json(treatments);
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  }
+});
+
 
 // Treatment - patients/id/treatment
 router.post("/patients/:patientId/treatments",upload.single("xrayImage"),async (req, res) => {

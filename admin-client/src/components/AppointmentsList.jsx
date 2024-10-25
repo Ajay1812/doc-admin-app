@@ -22,6 +22,7 @@ import dayjs from 'dayjs';
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
 import LocalHospitalRoundedIcon from '@mui/icons-material/LocalHospitalRounded';
 import DoneOutlineOutlinedIcon from '@mui/icons-material/DoneOutlineOutlined';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
@@ -176,33 +177,38 @@ export const AppointmentsList = () => {
     }
   };
 
-  const handleSchedule = async (appointmentId) => {
+  const updateAppointmentStatus = async (appointmentId, newStatus) => {
     try {
       setLoading(true);
       setError('');
       await axios.patch(`${BASE_URL}/admin/appointments/${appointmentId}/status`, {
-        status: 'Completed',
+        status: newStatus,
       }, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json',
         },
       });
+
+      // Update the local state
       setAppointments((prevAppointments) =>
         prevAppointments.map((appointment) =>
-          appointment._id === appointmentId ? { ...appointment, status: 'Completed' } : appointment
+          appointment._id === appointmentId ? { ...appointment, status: newStatus } : appointment
         )
       );
-      toast.success("Appointment Completed successfully", {
+
+      // Show success message based on status
+      toast.success(`Appointment ${newStatus.toLowerCase()} successfully`, {
         position: "top-center",
         autoClose: 2000,
       });
     } catch (err) {
-      setError('Failed to update status');
+      setError(`Failed to update appointment status to ${newStatus}`);
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <>
@@ -305,12 +311,22 @@ export const AppointmentsList = () => {
                     <TableCell>{appointment.phone}</TableCell>
                     <TableCell>{new Date(appointment.appointmentDate).toLocaleString()}</TableCell>
                     <TableCell>{appointment.reason}</TableCell>
-                    <TableCell>{appointment.status}
+                    <TableCell>
+                      {appointment.status}
                       {appointment.status === 'Scheduled' && (
                         <Button
                           color="success"
                           startIcon={<DoneOutlineOutlinedIcon />}
-                          onClick={() => handleSchedule(appointment._id)}
+                          onClick={() => updateAppointmentStatus(appointment._id, 'Completed')}
+                          disabled={loading}
+                        >
+                        </Button>
+                      )}
+                      {appointment.status === 'Scheduled' && (
+                        <Button
+                          color="error"
+                          startIcon={<CloseRoundedIcon />}
+                          onClick={() => updateAppointmentStatus(appointment._id, 'Cancelled')}
                           disabled={loading}
                         >
                         </Button>

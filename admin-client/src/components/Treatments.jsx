@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { TextField, Button, Typography, Grid, MenuItem, Modal, Box } from "@mui/material";
+import { TextField, Button, Typography, Grid, MenuItem, Modal, Box, TableContainer, Table, TableHead, TableRow, TableCell, TableBody } from "@mui/material";
 import LocalHospitalRoundedIcon from '@mui/icons-material/LocalHospitalRounded';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { BASE_URL } from "../config";
 
 export const Treatments = () => {
@@ -14,8 +15,10 @@ export const Treatments = () => {
   const [date, setDate] = useState("");
   const [notes, setNotes] = useState("");
   const [xrayImage, setXrayImage] = useState(null);
-  const [imagePreviewUrl, setImagePreviewUrl] = useState(null); // State for preview URL
-  const [open, setOpen] = useState(false); // Modal state
+  const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
+  const [open, setOpen] = useState(false); // Modal state for Preview
+  const [openViewAllTreatments, setOpenViewAllTreatments] = useState(false); // Modal state for preview all treatments
+  const [treatments, setTreatments] = useState([])
 
   useEffect(() => {
     const fetchPatients = async () => {
@@ -34,7 +37,21 @@ export const Treatments = () => {
         setPatients([]);
       }
     };
+    const fetchTreatments = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}/admin/treatments`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        console.log("TREATMENT: ", response.data)
+        setTreatments(response.data);
+      } catch (error) {
+        console.error("Error fetching treatments:", error);
+      }
+    };
     fetchPatients();
+    fetchTreatments()
   }, []);
 
   const handleFileChange = (e) => {
@@ -72,7 +89,7 @@ export const Treatments = () => {
       setDate('');
       setNotes('');
       setXrayImage(null);
-      setImagePreviewUrl(null); // Clear the preview URL after submitting
+      setImagePreviewUrl(null);
     } catch (error) {
       console.error("Error creating treatment:", error);
     }
@@ -80,6 +97,9 @@ export const Treatments = () => {
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
+  const handleOpenTreatments = () => setOpenViewAllTreatments(true);
+  const handleCloseTreatments = () => setOpenViewAllTreatments(false);
 
   return (
     <div style={{ display: "flex", justifyContent: "center", height: "100vh" }}>
@@ -158,6 +178,11 @@ export const Treatments = () => {
             </Button>
           </Grid>
           <Grid item xs={12}>
+            <Button variant="outlined" color="secondary" onClick={handleOpenTreatments} startIcon={<ExpandMoreIcon />}>
+              View All Treatments
+            </Button>
+          </Grid>
+          <Grid item xs={12}>
 
           </Grid>
         </Grid>
@@ -202,6 +227,66 @@ export const Treatments = () => {
           )}
         </Box>
       </Modal >
+      {/* Modal for view all treatments */}
+      <Modal
+        open={openViewAllTreatments}
+        onClose={handleCloseTreatments}
+        aria-labelledby="preview-modal-title"
+        aria-describedby="preview-modal-description"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "80%",
+            maxHeight: "80vh",
+            overflowY: "auto",
+            bgcolor: "background.paper",
+            borderRadius: 2,
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          <Typography id="treatments-modal-title" variant="h6" component="h2" textAlign="center">
+            All Treatments
+          </Typography>
+          <TableContainer style={{ marginTop: "1rem" }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>Treatment ID</TableCell>
+                  <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>Patient Name</TableCell>
+                  <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>Procedure</TableCell>
+                  <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>Cost</TableCell>
+                  <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>X-ray Image Path</TableCell>
+                  <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }}>Date</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {treatments.map((treatment) => (
+                  <TableRow key={treatment._id}>
+                    <TableCell>{treatment._id}</TableCell>
+                    <TableCell>
+                      {treatment.patientId ? (
+                        `${treatment.patientId.firstName.toUpperCase()} ${treatment.patientId.lastName.toUpperCase()}`
+                      ) : (
+                        'Unknown Patient'
+                      )}
+                    </TableCell>
+                    <TableCell>{treatment.treatmentDetails.procedure}</TableCell>
+                    <TableCell>{treatment.treatmentDetails.cost}</TableCell>
+                    <TableCell>{treatment.treatmentDetails.xrayImagePath}</TableCell>
+                    <TableCell>{new Date(treatment.createdAt).toLocaleDateString()}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      </Modal>
+
     </div >
   );
 };

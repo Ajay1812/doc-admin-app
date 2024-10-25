@@ -191,7 +191,7 @@ export function PatientList() {
 
         {/* Table Container */}
         <Grid item xs={12}>
-          <TableContainer component={Paper} style={{ width: '100%' }}>
+          <TableContainer component={Paper} style={{ width: '100%', border: "1px solid black" }}>
             <Table>
               <TableHead>
                 <TableRow>
