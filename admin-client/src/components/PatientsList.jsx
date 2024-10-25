@@ -1,4 +1,4 @@
-import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Drawer, TextField, Typography, IconButton, Grid, } from '@mui/material';
+import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Drawer, TextField, Typography, IconButton, Grid, InputAdornment } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { BASE_URL } from '../config.js';
@@ -7,6 +7,7 @@ import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
 import LocalHospitalRoundedIcon from '@mui/icons-material/LocalHospitalRounded';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import SearchIcon from '@mui/icons-material/Search';
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -17,6 +18,7 @@ export function PatientList() {
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedPatientId, setSelectedPatientId] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const [newPatient, setNewPatient] = useState({
     firstName: '',
     lastName: '',
@@ -93,7 +95,7 @@ export function PatientList() {
         address: '',
         medicalHistory: [],
       });
-      setDrawerOpen(true);
+      setDrawerOpen(false); // Close drawer after adding
       toast.success("Patient added successfully!", {
         position: "top-center",
         autoClose: 2000,
@@ -102,6 +104,20 @@ export function PatientList() {
       console.error('Error adding patient:', error);
     }
   };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value); // Update search term state
+  };
+
+  const filteredPatients = patients.filter(patient => {
+    const fullName = `${patient.firstName} ${patient.lastName}`.toLowerCase();
+    return (
+      fullName.includes(searchTerm.toLowerCase()) ||
+      patient.phone.includes(searchTerm) ||
+      patient.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      patient._id.includes(searchTerm)
+    );
+  });
 
   const toggleDrawer = () => {
     setDrawerOpen((prev) => !prev);
@@ -188,9 +204,24 @@ export function PatientList() {
             </IconButton>
           </div>
         </Grid>
+        {/* Search Bar */}
+        <TextField
+          label="Search Patients"
+          variant="outlined"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          style={{ marginBottom: '10px', width: '60%' }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
 
         {/* Table Container */}
-        <Grid item xs={12}>
+        <Grid item xs={12} marginTop={"25px"}>
           <TableContainer component={Paper} style={{ width: '100%', border: "1px solid black" }}>
             <Table>
               <TableHead>
@@ -203,17 +234,19 @@ export function PatientList() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {patients.map(patient => (
+                {filteredPatients.map(patient => (
                   <TableRow key={patient._id}>
                     <TableCell>{patient.firstName.toUpperCase()} {patient.lastName.toUpperCase()}</TableCell>
                     <TableCell>{patient.phone}</TableCell>
                     <TableCell>{patient.address}</TableCell>
-                    <TableCell>{patient.medicalHistory}</TableCell>
+                    <TableCell>{patient.medicalHistory.join(', ')}</TableCell>
                     <TableCell>
-                      <div style={{ display: 'flex', gap: '5px' }}>
-                        <Button color="primary" startIcon={<EditOutlinedIcon />} onClick={() => handleOpenDialog(patient._id)}></Button>
-                        <Button color='error' startIcon={<DeleteForeverOutlinedIcon />} onClick={() => handleDelete(patient._id)}></Button>
-                      </div>
+                      <IconButton onClick={() => handleOpenDialog(patient._id)}>
+                        <EditOutlinedIcon color="primary" />
+                      </IconButton>
+                      <IconButton onClick={() => handleDelete(patient._id)}>
+                        <DeleteForeverOutlinedIcon color="error" />
+                      </IconButton>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -222,16 +255,10 @@ export function PatientList() {
           </TableContainer>
         </Grid>
       </Grid>
-
-      <EditDialog
-        open={openDialog}
-        handleClose={handleCloseDialog}
-        patientId={selectedPatientId}
-        refreshPatients={refreshPatients}
-      />
       <ToastContainer />
+      <EditDialog open={openDialog} onClose={handleCloseDialog} patientId={selectedPatientId} />
     </>
   );
-};
+}
 
 export default PatientList;

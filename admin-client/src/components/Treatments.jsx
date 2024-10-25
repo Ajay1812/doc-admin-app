@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { TextField, Button, Typography, Grid, MenuItem, Modal, Box, TableContainer, Table, TableHead, TableRow, TableCell, TableBody } from "@mui/material";
+import { TextField, Button, Typography, Grid, MenuItem, Modal, Box, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, InputAdornment } from "@mui/material";
 import LocalHospitalRoundedIcon from '@mui/icons-material/LocalHospitalRounded';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
+import SearchIcon from '@mui/icons-material/Search';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { BASE_URL } from "../config";
 
@@ -19,6 +20,7 @@ export const Treatments = () => {
   const [open, setOpen] = useState(false); // Modal state for Preview
   const [openViewAllTreatments, setOpenViewAllTreatments] = useState(false); // Modal state for preview all treatments
   const [treatments, setTreatments] = useState([])
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchPatients = async () => {
@@ -44,7 +46,7 @@ export const Treatments = () => {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
-        console.log("TREATMENT: ", response.data)
+        // console.log("TREATMENT: ", response.data)
         setTreatments(response.data);
       } catch (error) {
         console.error("Error fetching treatments:", error);
@@ -82,7 +84,7 @@ export const Treatments = () => {
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log("Treatment added successfully:", response.data);
+      // console.log("Treatment added successfully:", response.data);
       setSelectedPatient('');
       setProcedure('');
       setCost('');
@@ -101,6 +103,24 @@ export const Treatments = () => {
   const handleOpenTreatments = () => setOpenViewAllTreatments(true);
   const handleCloseTreatments = () => setOpenViewAllTreatments(false);
 
+  // SearchBar in view Treatments
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value); // Update search term state
+  };
+
+  // Updated filtering logic
+  const filteredTreatments = treatments.filter(treatment => {
+    const fullName = treatment.patientId ?
+      `${treatment.patientId.firstName} ${treatment.patientId.lastName}`.toLowerCase()
+      : '';
+    return (
+      fullName.includes(searchTerm.toLowerCase()) ||
+      treatment.treatmentDetails.procedure.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      treatment.treatmentDetails.cost.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+      treatment._id.includes(searchTerm)
+    );
+  });
+  // console.log("FILTEREDDATA: ", filteredTreatments)
   return (
     <div style={{ display: "flex", justifyContent: "center", height: "100vh" }}>
       <form onSubmit={handleSubmit} style={{ width: "60%" }}>
@@ -249,9 +269,25 @@ export const Treatments = () => {
             p: 4,
           }}
         >
-          <Typography id="treatments-modal-title" variant="h6" component="h2" textAlign="center">
+          <Typography id="treatments-modal-title" variant="h6" component="h2" textAlign="center" marginBottom={"20px"}>
             All Treatments
           </Typography>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <TextField
+              label="Search Patients"
+              variant="outlined"
+              value={searchTerm}
+              onChange={handleSearchChange}
+              style={{ marginBottom: '10px', width: '60%' }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </div>
           <TableContainer style={{ marginTop: "1rem" }}>
             <Table>
               <TableHead>
@@ -265,7 +301,7 @@ export const Treatments = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {treatments.map((treatment) => (
+                {filteredTreatments.map((treatment) => (
                   <TableRow key={treatment._id}>
                     <TableCell>{treatment._id}</TableCell>
                     <TableCell>

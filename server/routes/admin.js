@@ -289,14 +289,14 @@ router.delete('/delete-appointment/:id', authenticateJwt, async (req, res) => {
 
 // In your routes file
 router.get('/treatments', async (req, res) => {
-  try {
-      const treatments = await Treatment.find()
-          .populate('patientId', 'firstName lastName')
-          .exec();
-      res.json(treatments);
-  } catch (error) {
-      res.status(500).json({ error: error.message });
-  }
+    try {
+        const treatments = await Treatment.find()
+            .populate('patientId', 'firstName lastName')
+            .exec();
+        res.json(treatments);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 
