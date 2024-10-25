@@ -12,6 +12,7 @@ import EventNoteIcon from '@mui/icons-material/EventNote';
 import PersonIcon from '@mui/icons-material/Person';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import IconButton from '@mui/material/IconButton';
+import ReceiptIcon from '@mui/icons-material/Receipt';
 import MedicationLiquidOutlinedIcon from '@mui/icons-material/MedicationLiquidOutlined';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
@@ -19,6 +20,7 @@ import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import PatientList from './PatientsList.jsx';
 import { AppointmentsList } from './AppointmentsList.jsx';
+import { InvoiceGenerate } from './InvoiceGenerate.jsx';
 import { Treatments } from './Treatments.jsx';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from "react-toastify";
@@ -81,6 +83,10 @@ const NAVIGATION = [
     segment: 'treatments',
     title: "Treatments",
     icon: <MedicationLiquidOutlinedIcon />,
+  }, {
+    segment: "invoices",
+    title: "Invoices",
+    icon: <ReceiptIcon />
   }
 ];
 
@@ -110,6 +116,10 @@ function DemoPageContent({ pathname }) {
   }
   if (pathname === '/treatments') {
     return <Treatments />
+  }
+  if (pathname === '/invoices') {
+    return <InvoiceGenerate />
+
   }
 
   return (

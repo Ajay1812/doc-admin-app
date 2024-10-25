@@ -3,7 +3,7 @@ import { SignUp } from './components/Signup.jsx';
 import { SignIn } from './components/Signin.jsx';
 import { Dashboard } from './components/Dashboard.jsx';
 import { PatientList } from './components/PatientsList.jsx';
-import { InvoiceList } from './components/InvoiceList.jsx';
+import { InvoiceGenerate } from './components/InvoiceGenerate.jsx';
 import { NotFound } from './components/NotFound.jsx';
 import { ForgotPassword } from './components/ForgotPassword.jsx';
 import { PasswordReset } from './components/PasswordReset.jsx';
@@ -18,7 +18,7 @@ function App() {
       <Route path="/signup" element={<SignUp />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/patients" element={<PatientList />} />
-      <Route path="/invoices" element={<InvoiceList />} />
+      <Route path="/patients/:patientId/invoice" element={<InvoiceGenerate />} />
       <Route path="/appointments" element={<AppointmentsList />} />
       <Route path="/treatments" element={<Treatments />} />
       <Route path="/password-reset" element={<PasswordReset />} />

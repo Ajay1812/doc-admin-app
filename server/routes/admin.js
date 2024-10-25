@@ -326,6 +326,16 @@ router.post("/patients/:patientId/treatments",upload.single("xrayImage"),async (
   }
 );
 
+// Invoices
+router.get("/invoices", authenticateJwt, async (req, res) => {
+  try {
+    const invoices = await Invoice.find({});
+    res.status(200).json({ invoices });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching invoices", error });
+  }
+});
+
 // Invoice for particular patient
 router.post('/patients/:patientId/invoices', async (req, res) => {
   const { treatments } = req.body;
