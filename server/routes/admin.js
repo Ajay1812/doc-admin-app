@@ -337,7 +337,7 @@ router.get("/invoices", authenticateJwt, async (req, res) => {
 });
 
 // Invoice for particular patient
-router.post('/patients/:patientId/invoices', async (req, res) => {
+router.post('/patients/:patientId/invoices', authenticateJwt, async (req, res) => {
   const { treatments } = req.body;
   const patientId = req.params.patientId;
   if (!Array.isArray(treatments) || treatments.length === 0) {

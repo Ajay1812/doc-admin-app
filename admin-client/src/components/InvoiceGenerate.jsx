@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  TextField,
-  Button,
-  Typography,
-  Grid,
-  MenuItem,
-  Alert,
-  Card,
-  CardContent,
-} from '@mui/material';
+import { TextField, Button, Typography, Grid, MenuItem, Alert, Card, CardContent } from '@mui/material';
 import axios from 'axios';
 import { BASE_URL } from '../config';
 import { ToastContainer, toast } from "react-toastify";
@@ -19,10 +10,11 @@ export const InvoiceGenerate = () => {
   const [selectedPatient, setSelectedPatient] = useState('');
   const [error, setError] = useState('');
   const [amount, setAmount] = useState('');
-  const [services, setServices] = useState('');
+  const [procedure, setProcedure] = useState('');
+  const [cost, setCost] = useState('');
+  const [treatments, setTreatments] = useState([]);
   const [generatedInvoice, setGeneratedInvoice] = useState(null);
 
-  // Fetch patients once on mount
   useEffect(() => {
     const fetchPatients = async () => {
       try {
@@ -41,25 +33,37 @@ export const InvoiceGenerate = () => {
     fetchPatients();
   }, []);
 
+  const handleAddTreatment = () => {
+    if (procedure && cost) {
+      setTreatments([...treatments, { procedure, cost: parseFloat(cost) }]);
+      setProcedure('');
+      setCost('');
+    }
+  };
+
   const handleGenerateInvoice = async () => {
     if (!selectedPatient || !amount || !services) {
+      // console.log(selectedPatient, amount, services)
       setError('Please fill out all fields to generate an invoice.');
       return;
     }
 
     try {
-      const response = await axios.post(`${BASE_URL}/admin/invoices`, {
-        patientId: selectedPatient,
-        amount,
-        services,
-      }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json',
+      const response = await axios.post(
+        `${BASE_URL}/admin/patients/${selectedPatient}/invoices`,
+        {
+          patientId: selectedPatient,
+          amount,
+          services,
         },
-      });
-
-      setGeneratedInvoice(response.data.invoice); // Assuming the API returns the generated invoice
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      setGeneratedInvoice(response.data.invoice);
       toast.success("Invoice generated successfully!", {
         position: "top-center",
         autoClose: 2000,
@@ -69,18 +73,6 @@ export const InvoiceGenerate = () => {
     }
   };
 
-  const handleDownloadInvoice = () => {
-    // Logic to download the invoice
-    const invoiceBlob = new Blob([JSON.stringify(generatedInvoice, null, 2)], { type: 'application/json' });
-    const url = window.URL.createObjectURL(invoiceBlob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `invoice_${generatedInvoice._id}.json`; // Change the filename as needed
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-  };
 
   return (
     <>
@@ -112,27 +104,42 @@ export const InvoiceGenerate = () => {
           </TextField>
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid item xs={6} md={3}>
           <TextField
-            label="Amount"
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            label="Procedure"
+            value={procedure}
+            onChange={(e) => setProcedure(e.target.value)}
             fullWidth
-            required
           />
+        </Grid>
+        <Grid item xs={6} md={3}>
+          <TextField
+            label="Cost"
+            type="number"
+            value={cost}
+            onChange={(e) => setCost(e.target.value)}
+            fullWidth
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Button variant="outlined" color="primary" onClick={handleAddTreatment}>
+            Add Treatment
+          </Button>
         </Grid>
 
         <Grid item xs={12}>
-          <TextField
-            label="Services Rendered"
-            value={services}
-            onChange={(e) => setServices(e.target.value)}
-            fullWidth
-            required
-            multiline
-            rows={4}
-          />
+          {treatments.length > 0 && (
+            <Card>
+              <CardContent>
+                <Typography variant="h6">Treatments</Typography>
+                <ul>
+                  {treatments.map((treatment, index) => (
+                    <li key={index}>{treatment.procedure} - ${treatment.cost}</li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
         </Grid>
 
         <Grid item xs={12}>
@@ -140,7 +147,7 @@ export const InvoiceGenerate = () => {
             variant="contained"
             color="primary"
             onClick={handleGenerateInvoice}
-            disabled={!selectedPatient || !amount || !services}
+            disabled={!selectedPatient || treatments.length === 0}
           >
             Generate Invoice
           </Button>
@@ -152,13 +159,6 @@ export const InvoiceGenerate = () => {
               <CardContent>
                 <Typography variant="h5">Generated Invoice</Typography>
                 <pre>{JSON.stringify(generatedInvoice, null, 2)}</pre>
-                <Button
-                  variant="outlined"
-                  color="secondary"
-                  onClick={handleDownloadInvoice}
-                >
-                  Download Invoice
-                </Button>
               </CardContent>
             </Card>
           </Grid>

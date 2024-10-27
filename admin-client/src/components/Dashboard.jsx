@@ -18,7 +18,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
-import PatientList from './PatientsList.jsx';
+import { PatientList } from './PatientsList.jsx';
 import { AppointmentsList } from './AppointmentsList.jsx';
 import { InvoiceGenerate } from './InvoiceGenerate.jsx';
 import { Treatments } from './Treatments.jsx';
@@ -48,28 +48,7 @@ const NAVIGATION = [
     kind: 'header',
     title: 'Analytics',
   },
-  {
-    segment: 'reports',
-    title: 'Reports',
-    icon: <BarChartIcon />,
-    children: [
-      {
-        segment: 'sales',
-        title: 'Sales',
-        icon: <DescriptionIcon />,
-      },
-      {
-        segment: 'traffic',
-        title: 'Traffic',
-        icon: <DescriptionIcon />,
-      },
-    ],
-  },
-  {
-    segment: 'integrations',
-    title: 'Integrations',
-    icon: <LayersIcon />,
-  },
+
   {
     segment: 'patients',
     title: 'Patients',
