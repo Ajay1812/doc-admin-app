@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogActions,
@@ -6,142 +6,153 @@ import {
   DialogTitle,
   Button,
   TextField,
-} from '@mui/material';
-import axios from 'axios';
-import { BASE_URL } from '../config.js';
+  CircularProgress,
+} from "@mui/material";
+import axios from "axios";
+import { BASE_URL } from "../config.js";
 
-const EditDialog = ({ open, handleClose, patientId, refreshPatients }) => {
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    dateOfBirth: '',
-    age: '',
-    phone: '',
-    address: '',
-    medicalHistory: '',
+function EditDialog({ open, onClose, patientId, refreshPatients }) {
+  const [patientData, setPatientData] = useState({
+    firstName: "",
+    lastName: "",
+    dateOfBirth: "",
+    age: "",
+    phone: "",
+    address: "",
+    medicalHistory: "",
   });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchPatient = async () => {
-      try {
-        const response = await axios.get(`${BASE_URL}/admin/patients/${patientId}`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-        });
-        setFormData(response.data.patient);
-      } catch (error) {
-        console.error('Error fetching patient:', error);
-      }
-    };
-
-    if (patientId) {
-      fetchPatient();
+    if (open && patientId) {
+      const fetchPatientData = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+          const response = await axios.get(`${BASE_URL}/admin/patients/${patientId}`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          });
+          setPatientData(response.data.patient);
+        } catch (err) {
+          setError("Failed to load patient data");
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchPatientData();
     }
-  }, [patientId]);
+  }, [open, patientId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setPatientData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
-  const handleSubmit = async () => {
+  const handleSave = async () => {
+    setSaving(true);
+    setError(null);
     try {
-      await axios.put(`${BASE_URL}/admin/patients/${patientId}`, formData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      await axios.put(`${BASE_URL}/admin/patients/${patientId}`, patientData, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-      refreshPatients(); // Call a function to refresh the patient list
-      handleClose(); // Close the dialog
-    } catch (error) {
-      console.error('Error updating patient:', error);
+      refreshPatients();
+      onClose();
+    } catch (err) {
+      setError("Failed to update patient");
+    } finally {
+      setSaving(false);
     }
   };
 
   return (
-    <Dialog open={open} onClose={handleClose}>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>Edit Patient</DialogTitle>
       <DialogContent>
-        <TextField
-          autoFocus
-          margin="dense"
-          name="firstName"
-          label="First Name"
-          type="text"
-          fullWidth
-          variant="outlined"
-          value={formData.firstName}
-          onChange={handleChange}
-        />
-        <TextField
-          margin="dense"
-          name="lastName"
-          label="Last Name"
-          type="text"
-          fullWidth
-          variant="outlined"
-          value={formData.lastName}
-          onChange={handleChange}
-        />
-        <TextField
-          margin="dense"
-          name="dateOfBirth"
-          label="Date of Birth"
-          type="date"
-          fullWidth
-          variant="outlined"
-          InputLabelProps={{ shrink: true }}
-          value={formData.dateOfBirth}
-          onChange={handleChange}
-        />
-        <TextField
-          margin="dense"
-          name="age"
-          label="Age"
-          type="number"
-          fullWidth
-          variant="outlined"
-          value={formData.age}
-          onChange={handleChange}
-        />
-        <TextField
-          margin="dense"
-          name="phone"
-          label="Phone"
-          type="tel"
-          fullWidth
-          variant="outlined"
-          value={formData.phone}
-          onChange={handleChange}
-        />
-        <TextField
-          margin="dense"
-          name="address"
-          label="Address"
-          type="text"
-          fullWidth
-          variant="outlined"
-          value={formData.address}
-          onChange={handleChange}
-        />
-        <TextField
-          margin="dense"
-          name="medicalHistory"
-          label="Medical History"
-          type="text"
-          fullWidth
-          variant="outlined"
-          value={formData.medicalHistory}
-          onChange={handleChange}
-        />
+        {loading ? (
+          <CircularProgress />
+        ) : error ? (
+          <p style={{ color: "red" }}>{error}</p>
+        ) : (
+          <>
+            <TextField
+              fullWidth
+              margin="normal"
+              label="First Name"
+              name="firstName"
+              value={patientData.firstName}
+              onChange={handleChange}
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Last Name"
+              name="lastName"
+              value={patientData.lastName}
+              onChange={handleChange}
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Date of Birth"
+              name="dateOfBirth"
+              type="date"
+              value={patientData.dateOfBirth}
+              onChange={handleChange}
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Age"
+              name="age"
+              type="number"
+              value={patientData.age}
+              onChange={handleChange}
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Phone"
+              name="phone"
+              value={patientData.phone}
+              onChange={handleChange}
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Address"
+              name="address"
+              value={patientData.address}
+              onChange={handleChange}
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Medical History"
+              name="medicalHistory"
+              value={patientData.medicalHistory}
+              onChange={handleChange}
+              multiline
+              rows={3}
+            />
+          </>
+        )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose} color="primary">
+        <Button onClick={onClose} color="secondary" disabled={saving}>
           Cancel
         </Button>
-        <Button onClick={handleSubmit} color="primary">
-          Save
+        <Button onClick={handleSave} color="primary" disabled={saving}>
+          {saving ? <CircularProgress size={24} /> : "Save"}
         </Button>
       </DialogActions>
     </Dialog>
   );
-};
+}
 
 export default EditDialog;

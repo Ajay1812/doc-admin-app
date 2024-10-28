@@ -121,6 +121,7 @@ export const AppointmentsList = () => {
           },
         }
       );
+      console.log(response)
       toast.success("Appointment added successfully!", {
         position: "top-center",
         autoClose: 2000,
@@ -311,27 +312,29 @@ export const AppointmentsList = () => {
                     <TableCell>{appointment.phone}</TableCell>
                     <TableCell>{new Date(appointment.appointmentDate).toLocaleString()}</TableCell>
                     <TableCell>{appointment.reason}</TableCell>
-                    <TableCell>
-                      {appointment.status}
-                      {appointment.status === 'Scheduled' && (
-                        <Button
-                          color="success"
-                          startIcon={<DoneOutlineOutlinedIcon />}
-                          onClick={() => updateAppointmentStatus(appointment._id, 'Completed')}
-                          disabled={loading}
-                        >
-                        </Button>
-                      )}
-                      {appointment.status === 'Scheduled' && (
-                        <Button
-                          color="error"
-                          startIcon={<CloseRoundedIcon />}
-                          onClick={() => updateAppointmentStatus(appointment._id, 'Cancelled')}
-                          disabled={loading}
-                        >
-                        </Button>
-                      )}
-                    </TableCell>
+                    <div style={{ whiteSpaceCollapse: "collapse", whiteSpace: "nowrap" }}>
+                      <TableCell>
+                        {appointment.status}
+                        {appointment.status === 'Scheduled' && (
+                          <Button
+                            color="success"
+                            startIcon={<DoneOutlineOutlinedIcon />}
+                            onClick={() => updateAppointmentStatus(appointment._id, 'Completed')}
+                            disabled={loading}
+                          >
+                          </Button>
+                        )}
+                        {appointment.status === 'Scheduled' && (
+                          <Button
+                            color="error"
+                            startIcon={<CloseRoundedIcon />}
+                            onClick={() => updateAppointmentStatus(appointment._id, 'Cancelled')}
+                            disabled={loading}
+                          >
+                          </Button>
+                        )}
+                      </TableCell>
+                    </div>
                     <TableCell>
                       <Button
                         color="error"

@@ -256,7 +256,7 @@ export function PatientList() {
         </Grid>
       </Grid>
       <ToastContainer />
-      <EditDialog open={openDialog} onClose={handleCloseDialog} patientId={selectedPatientId} />
+      <EditDialog open={openDialog} onClose={handleCloseDialog} patientId={selectedPatientId} refreshPatients={refreshPatients} />
     </>
   );
 }
