@@ -7,6 +7,7 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
 const upload = require("../middlewares/upload.js");
+const uploadPDF = require('../middlewares/uploadPDF.js')
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
@@ -336,42 +337,17 @@ router.get("/invoices", authenticateJwt, async (req, res) => {
   }
 });
 
-// Invoice for particular patient
-router.post('/patients/:patientId/invoices', authenticateJwt, async (req, res) => {
-  const { treatments } = req.body;
-  const patientId = req.params.patientId;
-  if (!Array.isArray(treatments) || treatments.length === 0) {
-    return res.status(400).json({ message: 'Treatments are required' });
+// Create a new invoice
+router.post('/invoices',  async (req, res) => {
+  try {
+    console.log(req.body)
+      const invoice = new Invoice(req.body);
+      await invoice.save();
+      res.status(201).json(invoice);
+  } catch (error) {
+      console.error('Error saving invoice:', error);
+      res.status(500).json({ message: 'Internal Server Error', error });
   }
-  let totalAmount = 0;
-  const treatmentDetails = [];
-  for (const treatment of treatments) {
-    const { procedure } = treatment;
-    const treatmentRecord = await Treatment.findOne({ "treatmentDetails.procedure": procedure });
-    if (!treatmentRecord) {
-      return res.status(404).json({ message: `Treatment not found for procedure: ${procedure}` });
-    }
-    treatmentDetails.push({ treatmentId: treatmentRecord._id, cost: treatmentRecord.treatmentDetails.cost });
-    totalAmount += treatmentRecord.treatmentDetails.cost;
-  }
-  const existingInvoice = await Invoice.findOne({
-    patientId: patientId,
-    "treatments.treatmentId": { $all: treatmentDetails.map(td => td.treatmentId) }
-  });
-  if (existingInvoice) {
-    return res.status(400).json({ message: `Invoice already exists for the provided treatments for the patient: ${patientId}` });
-  }
-  const newInvoice = new Invoice({
-    patientId: patientId,
-    treatments: treatmentDetails,
-    totalAmount: totalAmount,
-    paymentStatus: 'Pending'
-  });
-  await newInvoice.save();
-  res.status(201).json({
-    message: 'Invoice created successfully',
-    invoiceId: newInvoice._id,
-    treatments: treatmentDetails
-  });
 });
+
 module.exports = router;

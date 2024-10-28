@@ -64,28 +64,20 @@ const treatmentSchema = new mongoose.Schema({
 });
 
 const invoiceSchema = new mongoose.Schema({
-  patientId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Patient",
-    required: true,
-  },
-  treatments: [
+  invoiceNumber: { type: String, required: true },
+  billFrom: { type: String, required: true },
+  billTo: { type: String, required: true },
+  dateOfIssue: { type: Date, required: true },
+  notes: { type: String },
+  items: [
     {
-      treatmentId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Treatment",
-        required: true,
-      },
-      cost: { type: Number, required: true },
+      name: { type: String, required: true },
+      description: { type: String },
+      price: { type: Number, required: true },
+      quantity: { type: Number, required: true },
     },
   ],
-  totalAmount: { type: Number, required: true },
-  paymentStatus: {
-    type: String,
-    enum: ["Pending", "Paid"],
-    default: "Pending",
-  },
-  issuedAt: { type: Date, default: Date.now },
+  createdAt: { type: Date, default: Date.now },
 });
 
 const Admin = mongoose.model("Admin", adminSchema);

@@ -5,9 +5,6 @@ import Typography from '@mui/material/Typography';
 import { createTheme } from '@mui/material/styles';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import DescriptionIcon from '@mui/icons-material/Description';
-import LayersIcon from '@mui/icons-material/Layers';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import PersonIcon from '@mui/icons-material/Person';
 import AccountCircle from '@mui/icons-material/AccountCircle';
@@ -20,7 +17,7 @@ import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { PatientList } from './PatientsList.jsx';
 import { AppointmentsList } from './AppointmentsList.jsx';
-import { InvoiceGenerate } from './InvoiceGenerate.jsx';
+import { InvoiceForm } from './Invoice/InvoiceForm.jsx';
 import { Treatments } from './Treatments.jsx';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from "react-toastify";
@@ -97,7 +94,7 @@ function DemoPageContent({ pathname }) {
     return <Treatments />
   }
   if (pathname === '/invoices') {
-    return <InvoiceGenerate />
+    return <InvoiceForm />
 
   }
 

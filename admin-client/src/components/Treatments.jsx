@@ -124,7 +124,7 @@ export const Treatments = () => {
   return (
     <div style={{ display: "flex", justifyContent: "center", height: "100vh" }}>
       <form onSubmit={handleSubmit} style={{ width: "60%" }}>
-        <Typography variant="h4" gutterBottom textAlign="center" marginBottom="2.5rem">
+        <Typography variant="h4" gutterBottom textAlign="center" marginBottom="2.5rem" fontWeight="bold" >
           Add New Treatment
         </Typography>
         <Grid container spacing={2}>

@@ -215,7 +215,7 @@ export const AppointmentsList = () => {
       <Grid container spacing={3}>
         <Grid item xs={12}>
           <div style={{ display: "flex", justifyContent: "center", marginBottom: "1.5rem" }}>
-            <Typography variant="h4">Add Appointment</Typography>
+            <Typography variant="h4" fontWeight="bold" >Add Appointment</Typography>
           </div>
         </Grid>
 

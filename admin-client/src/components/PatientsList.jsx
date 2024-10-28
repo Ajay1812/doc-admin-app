@@ -134,7 +134,7 @@ export function PatientList() {
         onClose={toggleDrawer}
       >
         <div style={{ width: 320, padding: 20 }}>
-          <Typography textAlign={'center'} margin={"70px 0 20px 0"} variant="h5">Add Patient</Typography>
+          <Typography textAlign={'center'} fontWeight="bold" margin={"70px 0 20px 0"} variant="h4">Add Patient</Typography>
           <TextField
             label="First Name"
             fullWidth
