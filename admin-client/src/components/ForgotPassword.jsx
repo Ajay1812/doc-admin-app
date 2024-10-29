@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { BASE_URL } from "../config";
-import { Card, Typography, TextField, Button } from "@mui/material";
+import { Card, Typography, TextField, Button, IconButton, InputAdornment } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import 'react-toastify/dist/ReactToastify.css';
 import { keyframes } from "@emotion/react";
 
 export function ForgotPassword() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { id, token } = useParams();
 
@@ -63,6 +66,9 @@ export function ForgotPassword() {
     0% { opacity: 0; transform: translateY(30px); }
     100% { opacity: 1; transform: translateY(0); }
   `;
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   return (
     <>
@@ -113,7 +119,7 @@ export function ForgotPassword() {
           )}
 
           <TextField
-            type="password"
+            type={showPassword ? "text" : "password"}
             label="New Password"
             placeholder="Enter your new password"
             variant="outlined"
@@ -124,6 +130,18 @@ export function ForgotPassword() {
             margin="normal"
             style={{
               animation: `${fadeIn} 1.2s ease`,
+            }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={handleTogglePasswordVisibility}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />} {/* Toggle icon */}
+                  </IconButton>
+                </InputAdornment>
+              ),
             }}
           />
 

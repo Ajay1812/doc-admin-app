@@ -14,7 +14,7 @@ export function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  const [showPassword, setShowPassword] = useState(false); // New state for password visibility
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSignIn = async () => {
     try {
@@ -62,7 +62,7 @@ export function SignIn() {
   `;
 
   const handleTogglePasswordVisibility = () => {
-    setShowPassword((prev) => !prev); // Toggle password visibility
+    setShowPassword((prev) => !prev);
   };
 
   return (
@@ -169,7 +169,7 @@ export function SignIn() {
                 <TextField
                   label="Password"
                   variant="outlined"
-                  type={showPassword ? "text" : "password"} // Toggle between text and password
+                  type={showPassword ? "text" : "password"}
                   fullWidth
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

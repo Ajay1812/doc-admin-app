@@ -151,10 +151,10 @@ export function SignUp() {
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton
-                        onClick={() => setShowPassword(!showPassword)} // Toggle the state
+                        onClick={() => setShowPassword(!showPassword)}
                         edge="end"
                       >
-                        {showPassword ? <VisibilityOff /> : <Visibility />} {/* Change icon based on state */}
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
                       </IconButton>
                     </InputAdornment>
                   ),
