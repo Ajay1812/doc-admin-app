@@ -12,7 +12,7 @@ export function SignUp() {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // State to manage password visibility
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSignUp = () => {
     fetch(`${BASE_URL}/admin/signup`, {
