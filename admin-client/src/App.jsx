@@ -9,11 +9,13 @@ import { ForgotPassword } from './components/ForgotPassword.jsx';
 import { PasswordReset } from './components/PasswordReset.jsx';
 import { AppointmentsList } from './components/AppointmentsList.jsx';
 import { Treatments } from './components/Treatments.jsx';
+import LandingPage from './components/Landing.jsx';
 
 function App() {
   return (
     <Routes>
       <Route path='*' element={<NotFound />} />
+      <Route path='/' element={<LandingPage />} />
       <Route path="/login" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/dashboard" element={<Dashboard />} />
