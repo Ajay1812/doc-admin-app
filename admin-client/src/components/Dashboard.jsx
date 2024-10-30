@@ -76,9 +76,8 @@ function DemoPageContent({ pathname }) {
   }
   if (pathname === '/invoices') {
     return <InvoiceForm />
-
   }
-  if (pathname === '/dashboard') {
+  if (pathname === '/dashboard' || pathname === '/') {
     return (
       <Box
         sx={{
@@ -95,7 +94,7 @@ function DemoPageContent({ pathname }) {
         </Typography>
 
         {/* Statistics Section */}
-        <Box sx={{ mt: 4, display: 'flex', justifyContent: 'space-around', width: '100%', flexWrap: 'wrap' }}>
+        <Box sx={{ mt: 4, display: 'flex', gap: "30px", justifyContent: 'space-around', width: '100%', flexWrap: 'wrap' }}>
           <Box sx={{ p: 2, border: '1px solid #ccc', borderRadius: '8px', width: '200px', textAlign: 'center' }}>
             <Typography variant="h6">Total Patients</Typography>
             <Typography variant="h4">120</Typography>
@@ -121,8 +120,8 @@ function DemoPageContent({ pathname }) {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell align="left">Activity</TableCell>
-                  <TableCell align="left">Date</TableCell>
+                  <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }} align="left">Activity</TableCell>
+                  <TableCell style={{ fontWeight: 'bold', background: "#e3e3e3" }} align="left">Date</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -217,7 +216,6 @@ export function Dashboard(props) {
       router={router}
       theme={demoTheme}
       window={demoWindow}
-      onClick
     >
       <DashboardLayout>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 2 }}>
