@@ -4,7 +4,7 @@ import axios from 'axios';
 import { BASE_URL } from '../config.js';
 import EditDialog from './EditDialog';
 import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
-import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
+import { BiTrash } from "react-icons/bi";
 import LocalHospitalRoundedIcon from '@mui/icons-material/LocalHospitalRounded';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import SearchIcon from '@mui/icons-material/Search';
@@ -198,7 +198,7 @@ export function PatientList() {
       <Grid container spacing={2} justifyContent="center">
         <Grid item xs={12}>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '20px' }}>
-            <Typography marginRight="1.3rem" variant="h4">Patients List</Typography>
+            <Typography marginRight="1.3rem" fontWeight={"bold"} variant="h4">Patients List</Typography>
             <IconButton onClick={toggleDrawer}>
               <AddBoxOutlinedIcon color='primary' fontSize='large' />
             </IconButton>
@@ -244,8 +244,8 @@ export function PatientList() {
                       <IconButton onClick={() => handleOpenDialog(patient._id)}>
                         <EditOutlinedIcon color="primary" />
                       </IconButton>
-                      <IconButton onClick={() => handleDelete(patient._id)}>
-                        <DeleteForeverOutlinedIcon color="error" />
+                      <IconButton color='error' onClick={() => handleDelete(patient._id)}>
+                        <BiTrash />
                       </IconButton>
                     </TableCell>
                   </TableRow>

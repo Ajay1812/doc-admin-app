@@ -19,7 +19,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import dayjs from 'dayjs';
-import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
+import { BiTrash } from "react-icons/bi";
 import LocalHospitalRoundedIcon from '@mui/icons-material/LocalHospitalRounded';
 import DoneOutlineOutlinedIcon from '@mui/icons-material/DoneOutlineOutlined';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
@@ -38,7 +38,6 @@ export const AppointmentsList = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Fetch patients once on mount
   useEffect(() => {
     const fetchPatients = async () => {
       try {
@@ -57,7 +56,6 @@ export const AppointmentsList = () => {
     fetchPatients();
   }, []);
 
-  // Fetch appointments once patients are loaded
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
@@ -191,14 +189,12 @@ export const AppointmentsList = () => {
         },
       });
 
-      // Update the local state
       setAppointments((prevAppointments) =>
         prevAppointments.map((appointment) =>
           appointment._id === appointmentId ? { ...appointment, status: newStatus } : appointment
         )
       );
 
-      // Show success message based on status
       toast.success(`Appointment ${newStatus.toLowerCase()} successfully`, {
         position: "top-center",
         autoClose: 2000,
@@ -213,11 +209,11 @@ export const AppointmentsList = () => {
 
   return (
     <>
-      <Grid container spacing={3}>
+      <Grid container spacing={2} justifyContent="center">
         <Grid item xs={12}>
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: "1.5rem" }}>
-            <Typography variant="h4" fontWeight="bold" >Add Appointment</Typography>
-          </div>
+          <Typography variant="h4" fontWeight="bold" align="center" gutterBottom>
+            Add Appointment
+          </Typography>
         </Grid>
 
         {error && (
@@ -225,57 +221,63 @@ export const AppointmentsList = () => {
             <Alert severity="error">{error}</Alert>
           </Grid>
         )}
-        <Grid item xs={12} md={6} marginLeft={"2.5rem"}>
-          <TextField
-            select
-            label="Select Patient"
-            value={selectedPatient}
-            onChange={(e) => setSelectedPatient(e.target.value)}
-            fullWidth
-            required
-          >
-            {patients.map((patient) => (
-              <MenuItem key={patient._id} value={patient._id}>
-                {patient.firstName} {patient.lastName} - {patient.phone}
-              </MenuItem>
-            ))}
-          </TextField>
+
+        <Grid item xs={12} sm={6} md={4}>
+          <div style={{ marginLeft: "20px", width: "300px" }}>
+            <TextField
+              select
+              label="Select Patient"
+              value={selectedPatient}
+              onChange={(e) => setSelectedPatient(e.target.value)}
+              fullWidth
+              required
+            >
+              {patients.map((patient) => (
+                <MenuItem key={patient._id} value={patient._id}>
+                  {patient.firstName} {patient.lastName} - {patient.phone}
+                </MenuItem>
+              ))}
+            </TextField>
+          </div>
         </Grid>
 
-        <Grid item xs={12} md={6} marginLeft={"2.5rem"}>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DateTimePicker
-              disablePast
-              label="Appointment Date & Time"
-              value={appointmentDate}
-              onChange={(newValue) => {
-                if (newValue && newValue.isValid()) {
-                  setAppointmentDate(newValue);
-                } else {
-                  setError("Invalid date");
-                }
-              }}
-              renderInput={(params) => <TextField {...params} />}
+        <Grid item xs={12} sm={6} md={4}>
+          <div style={{ marginLeft: "20px", width: "300px" }}>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DateTimePicker
+                disablePast
+                label="Appointment Date & Time"
+                value={appointmentDate}
+                onChange={(newValue) => {
+                  if (newValue && newValue.isValid()) {
+                    setAppointmentDate(newValue);
+                  } else {
+                    setError("Invalid date");
+                  }
+                }}
+                renderInput={(params) => <TextField {...params} fullWidth />}
+                required
+              />
+            </LocalizationProvider>
+          </div>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={4}>
+          <div style={{ marginLeft: "20px", width: "300px" }}>
+            <TextField
+              label="Reason"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
               required
             />
-          </LocalizationProvider>
+          </div>
         </Grid>
 
-        <Grid item xs={12} md={6} marginLeft={"2.5rem"}>
-          <TextField
-            label="Reason"
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            fullWidth
-            required
-          />
-        </Grid>
-
-        <Grid item xs={12}>
+        <Grid item xs={12} sm={8}>
           {loading ? (
             <CircularProgress />
           ) : (
-            <div style={{ marginLeft: "2.5rem", marginBottom: "2.5rem" }}>
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", margin: "20px 0 20px 0" }}>
               <Button
                 variant="contained"
                 color="secondary"
@@ -289,9 +291,8 @@ export const AppointmentsList = () => {
           )}
         </Grid>
 
-        {/* Appointments Table */}
         <Grid item xs={12}>
-          <TableContainer style={{ border: "1px solid black" }} component={Paper}>
+          <TableContainer component={Paper}>
             <Table>
               <TableHead>
                 <TableRow>
@@ -308,38 +309,34 @@ export const AppointmentsList = () => {
                 {appointments.map((appointment) => (
                   <TableRow key={appointment._id}>
                     <TableCell>{appointment._id}</TableCell>
-                    <TableCell>{`${appointment.firstName.toUpperCase()} ${appointment.lastName.toUpperCase()}`}</TableCell>
+                    <TableCell>{appointment.firstName} {appointment.lastName}</TableCell>
                     <TableCell>{appointment.phone}</TableCell>
-                    <TableCell>{new Date(appointment.appointmentDate).toLocaleString()}</TableCell>
+                    <TableCell>{dayjs(appointment.appointmentDate).format('YYYY-MM-DD HH:mm')}</TableCell>
                     <TableCell>{appointment.reason}</TableCell>
-                    <div style={{ whiteSpaceCollapse: "collapse", whiteSpace: "nowrap" }}>
-                      <TableCell>
-                        {appointment.status}
-                        {appointment.status === 'Scheduled' && (
-                          <Button
-                            color="success"
-                            startIcon={<DoneOutlineOutlinedIcon />}
-                            onClick={() => updateAppointmentStatus(appointment._id, 'Completed')}
-                            disabled={loading}
-                          >
-                          </Button>
-                        )}
-                        {appointment.status === 'Scheduled' && (
-                          <Button
-                            color="error"
-                            startIcon={<CloseRoundedIcon />}
-                            onClick={() => updateAppointmentStatus(appointment._id, 'Cancelled')}
-                            disabled={loading}
-                          >
-                          </Button>
-                        )}
-                      </TableCell>
-                    </div>
                     <TableCell>
                       <Button
-                        color="error"
-                        startIcon={<DeleteForeverOutlinedIcon />}
+                        color={
+                          appointment.status === 'Scheduled' ? 'secondary' :
+                            appointment.status === 'Completed' ? 'primary' : 'error'
+                        }
+                        onClick={() => {
+                          const nextStatus =
+                            appointment.status === 'Scheduled'
+                              ? 'Completed'
+                              : appointment.status === 'Completed'
+                                ? 'Cancelled'
+                                : 'Scheduled';
+                          updateAppointmentStatus(appointment._id, nextStatus);
+                        }}
+                      >
+                        {appointment.status}
+                      </Button>
+                    </TableCell>
+                    <TableCell>
+                      <Button
                         onClick={() => handleDelete(appointment._id)}
+                        color="error"
+                        startIcon={<BiTrash />}
                       >
                       </Button>
                     </TableCell>
@@ -349,7 +346,7 @@ export const AppointmentsList = () => {
             </Table>
           </TableContainer>
         </Grid>
-      </Grid>
+      </Grid >
       <ToastContainer />
     </>
   );

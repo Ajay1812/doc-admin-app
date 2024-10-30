@@ -124,7 +124,7 @@ export const Treatments = () => {
   return (
     <div style={{ display: "flex", justifyContent: "center", height: "100vh" }}>
       <form onSubmit={handleSubmit} style={{ width: "60%" }}>
-        <Typography variant="h4" gutterBottom textAlign="center" marginBottom="2.5rem" fontWeight="bold" >
+        <Typography variant="h4" gutterBottom textAlign="center" marginBottom="3.5rem" fontWeight="bold" >
           Add New Treatment
         </Typography>
         <Grid container spacing={2}>
@@ -181,7 +181,7 @@ export const Treatments = () => {
               onChange={(e) => setNotes(e.target.value)}
             />
           </Grid>
-          <Grid item xs={12}>
+          <Grid item xs={12} >
             <Button variant="outlined" component="label" startIcon={<CloudUploadOutlinedIcon />}>
               Upload X-ray Image
               <input type="file" hidden onChange={handleFileChange} />

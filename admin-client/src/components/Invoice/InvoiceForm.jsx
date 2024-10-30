@@ -161,7 +161,7 @@ export const InvoiceForm = () => {
 
   return (
     <>
-      <Typography variant="h4" fontWeight="bold" marginLeft={"25rem"} marginBottom={"2rem"}>
+      <Typography variant="h4" fontWeight="bold" display={"flex"} justifyContent={"center"} marginBottom={"2rem"}>
         Generate Invoice
       </Typography>
       <Box component="form" onSubmit={openModal} sx={{ flexGrow: 1 }}>
@@ -293,40 +293,48 @@ export const InvoiceForm = () => {
                 discountAmount={discountAmount}
                 total={total}
               />
-              <TextField
-                select
-                label="Currency"
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
-                sx={{ mt: 3, width: "100%" }}
-              >
-                <MenuItem value="$">USD (United States Dollar)</MenuItem>
-                <MenuItem value="£">GBP (British Pound Sterling)</MenuItem>
-                <MenuItem value="₹">INR (Indian Rupee)</MenuItem>
-                <MenuItem value="¥">JPY (Japanese Yen)</MenuItem>
-                <MenuItem value="€">EUR (Euro)</MenuItem>
-              </TextField>
-              <TextField
-                label="Discount Rate (%)"
-                type="number"
-                value={discountRate}
-                onChange={handleChange(setDiscountRate)}
-                sx={{ mt: 3, width: "100%" }}
-                InputProps={{
-                  endAdornment: <InputAdornment position="end">%</InputAdornment>,
-                }}
-              />
-              <TextField
-                label="Tax Rate (%)"
-                type="number"
-                value={taxRate}
-                onChange={handleChange(setTaxRate)}
-                sx={{ mt: 3, width: "100%" }}
-                InputProps={{
-                  endAdornment: <InputAdornment position="end">%</InputAdornment>,
-                }}
-              />
-              <div style={{ display: "flex", justifyContent: "space-around" }}>
+              <div style={{ display: "grid", justifySelf: "center" }}>
+                <div style={{ width: "300px" }}>
+                  <TextField
+                    select
+                    label="Currency"
+                    value={currency}
+                    onChange={(e) => setCurrency(e.target.value)}
+                    sx={{ mt: 3, width: "100%" }}
+                  >
+                    <MenuItem value="$">USD (United States Dollar)</MenuItem>
+                    <MenuItem value="£">GBP (British Pound Sterling)</MenuItem>
+                    <MenuItem value="₹">INR (Indian Rupee)</MenuItem>
+                    <MenuItem value="¥">JPY (Japanese Yen)</MenuItem>
+                    <MenuItem value="€">EUR (Euro)</MenuItem>
+                  </TextField>
+                </div>
+                <div style={{ width: "300px" }}>
+                  <TextField
+                    label="Discount Rate (%)"
+                    type="number"
+                    value={discountRate}
+                    onChange={handleChange(setDiscountRate)}
+                    sx={{ mt: 3, width: "100%" }}
+                    InputProps={{
+                      endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                    }}
+                  />
+                </div>
+                <div style={{ width: "300px", justifyContent: 'center', display: "flex" }}>
+                  <TextField
+                    label="Tax Rate (%)"
+                    type="number"
+                    value={taxRate}
+                    onChange={handleChange(setTaxRate)}
+                    sx={{ mt: 3, width: "100%" }}
+                    InputProps={{
+                      endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                    }}
+                  />
+                </div>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-evenly", margin: "5px 0 25px 0" }}>
                 <Button
                   type="submit"
                   variant="contained"

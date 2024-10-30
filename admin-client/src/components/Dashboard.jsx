@@ -1,10 +1,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
+import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import dantveda from '../assets/dantveda_logo.png'
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import PersonIcon from '@mui/icons-material/Person';
 import AccountCircle from '@mui/icons-material/AccountCircle';
@@ -26,24 +24,7 @@ import 'react-toastify/dist/ReactToastify.css';
 const NAVIGATION = [
   {
     kind: 'header',
-    title: 'Main items',
-  },
-  {
-    segment: 'dashboard',
-    title: 'Dashboard',
-    icon: <DashboardIcon />,
-  },
-  {
-    segment: 'orders',
-    title: 'Orders',
-    icon: <ShoppingCartIcon />,
-  },
-  {
-    kind: 'divider',
-  },
-  {
-    kind: 'header',
-    title: 'Analytics',
+    title: 'Dantveda',
   },
 
   {
@@ -97,6 +78,77 @@ function DemoPageContent({ pathname }) {
     return <InvoiceForm />
 
   }
+  if (pathname === '/dashboard') {
+    return (
+      <Box
+        sx={{
+          py: 4,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          textAlign: 'center',
+        }}
+      >
+        <Typography variant="h4">Welcome to the Dantveda Dashboard!</Typography>
+        <Typography variant="body1" sx={{ mt: 2 }}>
+          Here you can manage patients, appointments, treatments, and invoices.
+        </Typography>
+
+        {/* Statistics Section */}
+        <Box sx={{ mt: 4, display: 'flex', justifyContent: 'space-around', width: '100%', flexWrap: 'wrap' }}>
+          <Box sx={{ p: 2, border: '1px solid #ccc', borderRadius: '8px', width: '200px', textAlign: 'center' }}>
+            <Typography variant="h6">Total Patients</Typography>
+            <Typography variant="h4">120</Typography>
+          </Box>
+          <Box sx={{ p: 2, border: '1px solid #ccc', borderRadius: '8px', width: '200px', textAlign: 'center' }}>
+            <Typography variant="h6">Upcoming Appointments</Typography>
+            <Typography variant="h4">15</Typography>
+          </Box>
+          <Box sx={{ p: 2, border: '1px solid #ccc', borderRadius: '8px', width: '200px', textAlign: 'center' }}>
+            <Typography variant="h6">Total Treatments</Typography>
+            <Typography variant="h4">50</Typography>
+          </Box>
+          <Box sx={{ p: 2, border: '1px solid #ccc', borderRadius: '8px', width: '200px', textAlign: 'center' }}>
+            <Typography variant="h6">Pending Invoices</Typography>
+            <Typography variant="h4">8</Typography>
+          </Box>
+        </Box>
+
+        {/* Recent Activities Section */}
+        <Box sx={{ mt: 4, width: '100%', maxWidth: '600px', textAlign: 'left' }}>
+          <Typography variant="h5">Recent Activities</Typography>
+          <TableContainer component={Paper} sx={{ mt: 2 }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell align="left">Activity</TableCell>
+                  <TableCell align="left">Date</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                <TableRow>
+                  <TableCell>✔️ John Doe added as a new patient</TableCell>
+                  <TableCell>{new Date().toLocaleDateString()}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>✔️ Appointment scheduled with Dr. Smith</TableCell>
+                  <TableCell>10/30</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>✔️ Treatment plan updated for Jane Doe</TableCell>
+                  <TableCell>{new Date().toLocaleDateString()}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>✔️ Invoice generated for patient Alex Johnson</TableCell>
+                  <TableCell>{new Date().toLocaleDateString()}</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -122,7 +174,7 @@ export function Dashboard(props) {
 
   const [pathname, setPathname] = React.useState('/dashboard');
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const navigator = useNavigate('')
+  const navigator = useNavigate()
 
   const router = React.useMemo(() => {
     return {
@@ -158,13 +210,14 @@ export function Dashboard(props) {
   return (
     <AppProvider
       branding={{
-        logo: <img src='https://mui.com/static/logo.png' alt="DANTVEDA logo" />,
+        logo: <img src={dantveda} alt="DANTVEDA logo" />,
         title: 'DANTVEDA',
       }}
       navigation={NAVIGATION}
       router={router}
       theme={demoTheme}
       window={demoWindow}
+      onClick
     >
       <DashboardLayout>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 2 }}>

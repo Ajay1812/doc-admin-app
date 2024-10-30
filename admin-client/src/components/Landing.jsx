@@ -2,8 +2,10 @@ import React from 'react';
 import { AppBar, Toolbar, Typography, Box, Button, Container, Grid, Paper } from '@mui/material';
 import landing from "../assets/landing.jpg";
 import { useNavigate } from 'react-router-dom';
-function LandingPage() {
-  const navigate = useNavigate('')
+
+export function LandingPage() {
+  const navigate = useNavigate();
+
   return (
     <div>
       <AppBar position="static" color="primary">
@@ -15,6 +17,7 @@ function LandingPage() {
           <Button color="inherit" onClick={() => navigate("/signup")}>Sign Up</Button>
         </Toolbar>
       </AppBar>
+
       <Box sx={{ backgroundColor: '#f5f5f5', py: 8 }}>
         <Container maxWidth="lg">
           <Grid container spacing={4} alignItems="center">
@@ -24,7 +27,7 @@ function LandingPage() {
                 src={landing}
                 alt="Doctor illustration"
                 sx={{
-                  width: '65%',
+                  width: { xs: '100%', sm: '80%', md: '65%' },
                   borderRadius: 2,
                   boxShadow: "0 15px 30px rgba(0, 0, 0, 0.1)",
                 }}
@@ -32,13 +35,19 @@ function LandingPage() {
             </Grid>
 
             <Grid item xs={12} md={6}>
-              <Typography variant="h2" gutterBottom>
+              <Typography variant="h4" gutterBottom>
                 Manage Your Practice Efficiently
               </Typography>
-              <Typography variant="h5" color="textSecondary" paragraph>
+              <Typography variant="body1" color="textSecondary" paragraph>
                 Our platform provides an all-in-one solution for managing patient records, appointments, invoices, and more.
               </Typography>
-              <Button variant="contained" color="primary" size="large" sx={{ mt: 4 }} onClick={() => navigate("/login")}>
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                sx={{ mt: 4 }}
+                onClick={() => navigate("/login")}
+              >
                 Get Started
               </Button>
             </Grid>
@@ -83,6 +92,7 @@ function LandingPage() {
           </Grid>
         </Grid>
       </Container>
+
       <Box sx={{ backgroundColor: '#e0e0e0', py: 6, textAlign: 'center' }}>
         <Typography variant="h4" gutterBottom>
           Ready to Transform Your Practice?
@@ -91,7 +101,7 @@ function LandingPage() {
           Join Us Now
         </Button>
       </Box>
-    </div >
+    </div>
   );
 }
 
