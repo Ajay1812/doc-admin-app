@@ -12,7 +12,7 @@ app.use(express.json())
 app.use('/admin', adminRouter) 
 
 app.use(express.static("public"))
-app.use("*", (req,res)=>{
+app.use("/*", (req,res)=>{
   res.sendFile(path.join(__dirname, "/public/index.html"))
 })
 
