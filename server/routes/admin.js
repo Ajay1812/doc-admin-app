@@ -340,7 +340,7 @@ router.get("/invoices", authenticateJwt, async (req, res) => {
 // Create a new invoice
 router.post('/invoices',  async (req, res) => {
   try {
-    console.log(req.body)
+    // console.log(req.body)
       const invoice = new Invoice(req.body);
       await invoice.save();
       res.status(201).json(invoice);
