@@ -146,15 +146,15 @@ function DemoPageContent({ pathname, addActivity, recentActivities }) {
 
         {/* Statistics Section */}
         <Box sx={{ mt: 4, display: 'flex', gap: "30px", padding: "20px", justifyContent: 'space-around', width: '100%', flexWrap: 'wrap' }}>
-          <Box sx={{ p: 2, border: '1px solid #ccc', borderRadius: '8px', width: '200px', textAlign: 'center' }}>
+          <Box sx={{ p: 2, border: '1px solid #ccc', borderRadius: '14px', width: '200px', textAlign: 'center', boxShadow: " 0 2px 8px 0 rgba(0, 0, 0, 0.1), 0 4px 10px 0 rgba(0, 0, 0, 0.10)", }}>
             <Typography variant="h6">Total Patients</Typography>
             <Typography variant="h4">{patients.length}</Typography>
           </Box>
-          <Box sx={{ p: 2, border: '1px solid #ccc', borderRadius: '8px', width: '200px', textAlign: 'center' }}>
+          <Box sx={{ p: 2, border: '1px solid #ccc', borderRadius: '14px', width: '200px', textAlign: 'center', boxShadow: " 0 2px 8px 0 rgba(0, 0, 0, 0.1), 0 4px 10px 0 rgba(0, 0, 0, 0.10)", }}>
             <Typography variant="h6">Upcoming Appointments</Typography>
             <Typography variant="h4">{upcomingAppointments.length}</Typography>
           </Box>
-          <Box sx={{ p: 2, border: '1px solid #ccc', borderRadius: '8px', width: '200px', textAlign: 'center' }}>
+          <Box sx={{ p: 2, border: '1px solid #ccc', borderRadius: '14px', width: '200px', textAlign: 'center', boxShadow: " 0 2px 8px 0 rgba(0, 0, 0, 0.1), 0 4px 10px 0 rgba(0, 0, 0, 0.10)", }}>
             <Typography variant="h6">Total Treatments</Typography>
             <Typography variant="h4">{totalTreatment.length}</Typography>
           </Box>
@@ -220,11 +220,22 @@ export function Dashboard(props) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const navigator = useNavigate()
   const [recentActivities, setRecentActivities] = useState([]);
+
+  useEffect(() => {
+    const storedActivities = JSON.parse(localStorage.getItem('recentActivities'));
+    if (storedActivities) {
+      setRecentActivities(storedActivities);
+    }
+  }, []);
+
   const addActivity = (activity) => {
-    setRecentActivities((prevActivities) => [
-      ...prevActivities,
-      { activity, date: new Date().toLocaleString() },
-    ]);
+    const newActivity = { activity, date: new Date().toLocaleString() };
+
+    setRecentActivities((prevActivities) => {
+      const updatedActivities = [...prevActivities, newActivity];
+      localStorage.setItem('recentActivities', JSON.stringify(updatedActivities));
+      return updatedActivities;
+    });
   };
 
   const router = React.useMemo(() => {
@@ -246,8 +257,9 @@ export function Dashboard(props) {
   };
 
   const handleMenuItemClick = (item) => {
-    console.log(`Clicked on: ${item}`);
+    // console.log(`Clicked on: ${item}`);
     localStorage.removeItem('token')
+    localStorage.removeItem('recentActivities')
     toast.success("Admin Logout!", {
       position: "top-center",
       autoClose: 1000,

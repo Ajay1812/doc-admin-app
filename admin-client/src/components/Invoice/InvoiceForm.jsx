@@ -18,7 +18,7 @@ import axios from 'axios';
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
-export const InvoiceForm = () => {
+export const InvoiceForm = ({ addActivity }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [currency, setCurrency] = useState("₹");
   const [currentDate, setCurrentDate] = useState(
@@ -153,6 +153,10 @@ export const InvoiceForm = () => {
         position: "top-center",
         autoClose: 2000,
       });
+      addActivity(`✅ Invoice Generated for ${formData.invoiceNumber}`)
+      setTimeout(() => {
+        toast.dismiss();
+      }, 2000)
       // console.log('Invoice submitted successfully:', response.data);
     } catch (error) {
       console.error('Error saving invoice:', error.response ? error.response.data : error.message);
@@ -357,7 +361,7 @@ export const InvoiceForm = () => {
           </Grid>
         </Grid>
       </Box>
-      <ToastContainer />
+      <ToastContainer autoClose={2000} position="top-center" />
     </>
   );
 };
