@@ -15,6 +15,4 @@ const mongoPassword = process.env.MONGO_PASSWORD;
 
 mongoose.connect(`mongodb+srv://${mongoUser}:${mongoPassword}@cluster0.y0jqm.mongodb.net/doc`)
 
-app.listen(3000, ()=>{ 
-  console.log("Server is running on port 3000 ")
-})
+app.listen(3000, ()=>{ console.log("Server is running on port 3000 ")})
