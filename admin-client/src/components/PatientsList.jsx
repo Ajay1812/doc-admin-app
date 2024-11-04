@@ -11,7 +11,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
-export function PatientList() {
+export function PatientList({ addActivity }) {
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -74,6 +74,10 @@ export function PatientList() {
           position: "top-center",
           autoClose: 2000,
         });
+        addActivity(`❌ Deleted patient with ID: ${patientId}`)
+        setTimeout(() => {
+          toast.dismiss();
+        }, 2000)
       } catch (error) {
         console.error('Error deleting patient:', error);
       }
@@ -95,11 +99,15 @@ export function PatientList() {
         address: '',
         medicalHistory: [],
       });
-      setDrawerOpen(false); // Close drawer after adding
+      setDrawerOpen(false);
       toast.success("Patient added successfully!", {
         position: "top-center",
         autoClose: 2000,
       });
+      addActivity(`✅ Patient Added: ${newPatient.firstName.toLowerCase()} ${newPatient.lastName.toLowerCase()}`)
+      setTimeout(() => {
+        toast.dismiss();
+      }, 2000)
     } catch (error) {
       console.error('Error adding patient:', error);
     }
@@ -255,8 +263,8 @@ export function PatientList() {
           </TableContainer>
         </Grid>
       </Grid>
-      <ToastContainer />
-      <EditDialog open={openDialog} onClose={handleCloseDialog} patientId={selectedPatientId} refreshPatients={refreshPatients} />
+      <ToastContainer autoClose={2000} position="top-center" />
+      <EditDialog open={openDialog} onClose={handleCloseDialog} patientId={selectedPatientId} refreshPatients={refreshPatients} addActivity={addActivity} />
     </>
   );
 }

@@ -10,8 +10,10 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import { BASE_URL } from "../config.js";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
-function EditDialog({ open, onClose, patientId, refreshPatients }) {
+function EditDialog({ open, onClose, patientId, refreshPatients, addActivity }) {
   const [patientData, setPatientData] = useState({
     firstName: "",
     lastName: "",
@@ -62,6 +64,14 @@ function EditDialog({ open, onClose, patientId, refreshPatients }) {
       });
       refreshPatients();
       onClose();
+      toast.success("Patient Details Edited successfully!", {
+        position: "top-center",
+        autoClose: 2000,
+      });
+      addActivity(`✅ Patient Details Edited: ${patientData.firstName.toLocaleUpperCase()} ${patientData.lastName.toLocaleUpperCase()}`)
+      setTimeout(() => {
+        toast.dismiss();
+      }, 2000)
     } catch (err) {
       setError("Failed to update patient");
     } finally {
@@ -151,6 +161,7 @@ function EditDialog({ open, onClose, patientId, refreshPatients }) {
           {saving ? <CircularProgress size={24} /> : "Save"}
         </Button>
       </DialogActions>
+      <ToastContainer />
     </Dialog>
   );
 }

@@ -28,7 +28,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 import { BASE_URL } from '../config';
 
-export const AppointmentsList = () => {
+export const AppointmentsList = ({ addActivity }) => {
   const [patients, setPatients] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [selectedPatient, setSelectedPatient] = useState('');
@@ -119,15 +119,19 @@ export const AppointmentsList = () => {
           },
         }
       );
-      console.log(response)
+      // console.log(response)
+
+      setSelectedPatient('');
+      setAppointmentDate(dayjs());
+      setReason('');
       toast.success("Appointment added successfully!", {
         position: "top-center",
         autoClose: 2000,
       });
-      setSelectedPatient('');
-      setAppointmentDate(dayjs());
-      setReason('');
-
+      addActivity(`✅ Patient Appointment Added: ${selectedPatientDetails.firstName.toLocaleUpperCase()} ${selectedPatientDetails.lastName.toLocaleUpperCase()}`)
+      setTimeout(() => {
+        toast.dismiss();
+      }, 2000)
       setAppointments((prevAppointments) => [
         ...prevAppointments,
         {
@@ -150,8 +154,13 @@ export const AppointmentsList = () => {
   const handleDelete = async (appointmentId) => {
     setLoading(true);
     setError('');
-    if (window.confirm('Are you sure you want to delete this patient?')) {
+    if (window.confirm('Are you sure you want to delete this appointment?')) {
       try {
+        // Find the appointment to get patient details
+        const appointmentToDelete = appointments.find(appointment => appointment._id === appointmentId);
+        const patientFirstName = appointmentToDelete ? appointmentToDelete.firstName : 'Unknown';
+        const patientLastName = appointmentToDelete ? appointmentToDelete.lastName : 'Unknown';
+
         await axios.delete(`${BASE_URL}/admin/delete-appointment/${appointmentId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -162,10 +171,15 @@ export const AppointmentsList = () => {
         setAppointments((prevAppointments) =>
           prevAppointments.filter((appointment) => appointment._id !== appointmentId)
         );
+
         toast.success("Appointment deleted successfully", {
           position: "top-center",
           autoClose: 2000,
         });
+        addActivity(`❌ Appointment Deleted: ${patientFirstName} ${patientLastName}`);
+        setTimeout(() => {
+          toast.dismiss();
+        }, 2000)
       } catch (err) {
         setError('Error deleting appointment. Please try again.');
       } finally {
@@ -176,10 +190,14 @@ export const AppointmentsList = () => {
     }
   };
 
+
   const updateAppointmentStatus = async (appointmentId, newStatus) => {
     try {
       setLoading(true);
       setError('');
+      const appointmentToUpdate = appointments.find(appointment => appointment._id === appointmentId);
+      const patientFirstName = appointmentToUpdate ? appointmentToUpdate.firstName : 'Unknown';
+      const patientLastName = appointmentToUpdate ? appointmentToUpdate.lastName : 'Unknown';
       await axios.patch(`${BASE_URL}/admin/appointments/${appointmentId}/status`, {
         status: newStatus,
       }, {
@@ -194,17 +212,21 @@ export const AppointmentsList = () => {
           appointment._id === appointmentId ? { ...appointment, status: newStatus } : appointment
         )
       );
-
       toast.success(`Appointment ${newStatus.toLowerCase()} successfully`, {
         position: "top-center",
         autoClose: 2000,
       });
+      addActivity(`📝 Appointment Status of ${patientFirstName.toLocaleUpperCase()} ${patientLastName.toLocaleUpperCase()}: ${newStatus.toLowerCase()}`);
+      setTimeout(() => {
+        toast.dismiss();
+      }, 2000)
     } catch (err) {
       setError(`Failed to update appointment status to ${newStatus}`);
     } finally {
       setLoading(false);
     }
   };
+
 
 
   return (
@@ -347,7 +369,7 @@ export const AppointmentsList = () => {
           </TableContainer>
         </Grid>
       </Grid >
-      <ToastContainer />
+      <ToastContainer autoClose={2000} position="top-center" />
     </>
   );
 };

@@ -20,6 +20,9 @@ import { Treatments } from './Treatments.jsx';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { BASE_URL } from '../config.js';
 
 const NAVIGATION = [
   {
@@ -64,20 +67,68 @@ const demoTheme = createTheme({
   },
 });
 
-function DemoPageContent({ pathname }) {
+function DemoPageContent({ pathname, addActivity, recentActivities }) {
   if (pathname === '/patients') {
-    return <PatientList />;
+    return <PatientList addActivity={addActivity} />;
   }
   if (pathname === '/appointments') {
-    return <AppointmentsList />;
+    return <AppointmentsList addActivity={addActivity} />;
   }
   if (pathname === '/treatments') {
-    return <Treatments />
+    return <Treatments addActivity={addActivity} />
   }
   if (pathname === '/invoices') {
-    return <InvoiceForm />
+    return <InvoiceForm addActivity={addActivity} />
   }
   if (pathname === '/dashboard' || pathname === '/') {
+    const [patients, setPatients] = useState([]);
+    const [upcomingAppointments, setUpcomingAppointments] = useState([])
+    const [totalTreatment, setTotalTreatment] = useState([])
+    useEffect(() => {
+      const fetchPatients = async () => {
+        try {
+          const response = await axios.get(`${BASE_URL}/admin/patients`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+          });
+          setPatients(response.data.patients);
+        } catch (err) {
+          console.log(err)
+        }
+      };
+
+      const fetchAppointments = async () => {
+        try {
+          const response = await axios.get(`${BASE_URL}/admin/appointments`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+          });
+          const currentDate = new Date();
+          const upcomingAppointments = response.data.appointments.filter(appointment => {
+            const appointmentDate = new Date(appointment.appointmentDate);
+            return appointmentDate > currentDate;
+          });
+          // console.log(`Upcoming appointments count: ${upcomingAppointments.length}`);
+          setUpcomingAppointments(upcomingAppointments)
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      const fetchTreatments = async () => {
+        try {
+          const response = await axios.get(`${BASE_URL}/admin/treatments`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+          });
+          // console.log("TREATMENT: ", response.data)
+          setTotalTreatment(response.data);
+        } catch (error) {
+          console.error("Error fetching treatments:", error);
+        }
+      };
+      fetchTreatments()
+      fetchAppointments()
+      fetchPatients();
+    }, []);
     return (
       <Box
         sx={{
@@ -94,22 +145,18 @@ function DemoPageContent({ pathname }) {
         </Typography>
 
         {/* Statistics Section */}
-        <Box sx={{ mt: 4, display: 'flex', gap: "30px", justifyContent: 'space-around', width: '100%', flexWrap: 'wrap' }}>
+        <Box sx={{ mt: 4, display: 'flex', gap: "30px", padding: "20px", justifyContent: 'space-around', width: '100%', flexWrap: 'wrap' }}>
           <Box sx={{ p: 2, border: '1px solid #ccc', borderRadius: '8px', width: '200px', textAlign: 'center' }}>
             <Typography variant="h6">Total Patients</Typography>
-            <Typography variant="h4">120</Typography>
+            <Typography variant="h4">{patients.length}</Typography>
           </Box>
           <Box sx={{ p: 2, border: '1px solid #ccc', borderRadius: '8px', width: '200px', textAlign: 'center' }}>
             <Typography variant="h6">Upcoming Appointments</Typography>
-            <Typography variant="h4">15</Typography>
+            <Typography variant="h4">{upcomingAppointments.length}</Typography>
           </Box>
           <Box sx={{ p: 2, border: '1px solid #ccc', borderRadius: '8px', width: '200px', textAlign: 'center' }}>
             <Typography variant="h6">Total Treatments</Typography>
-            <Typography variant="h4">50</Typography>
-          </Box>
-          <Box sx={{ p: 2, border: '1px solid #ccc', borderRadius: '8px', width: '200px', textAlign: 'center' }}>
-            <Typography variant="h6">Pending Invoices</Typography>
-            <Typography variant="h4">8</Typography>
+            <Typography variant="h4">{totalTreatment.length}</Typography>
           </Box>
         </Box>
 
@@ -125,22 +172,18 @@ function DemoPageContent({ pathname }) {
                 </TableRow>
               </TableHead>
               <TableBody>
-                <TableRow>
-                  <TableCell>✔️ John Doe added as a new patient</TableCell>
-                  <TableCell>{new Date().toLocaleDateString()}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>✔️ Appointment scheduled with Dr. Smith</TableCell>
-                  <TableCell>10/30</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>✔️ Treatment plan updated for Jane Doe</TableCell>
-                  <TableCell>{new Date().toLocaleDateString()}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>✔️ Invoice generated for patient Alex Johnson</TableCell>
-                  <TableCell>{new Date().toLocaleDateString()}</TableCell>
-                </TableRow>
+                {recentActivities.length > 0 ? (
+                  recentActivities.map((activity, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{activity.activity}</TableCell>
+                      <TableCell>{activity.date}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={2} align="center">No recent activities.</TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </TableContainer>
@@ -166,6 +209,8 @@ function DemoPageContent({ pathname }) {
 
 DemoPageContent.propTypes = {
   pathname: PropTypes.string.isRequired,
+  addActivity: PropTypes.func.isRequired,
+  recentActivities: PropTypes.array.isRequired,
 };
 
 export function Dashboard(props) {
@@ -174,6 +219,13 @@ export function Dashboard(props) {
   const [pathname, setPathname] = React.useState('/dashboard');
   const [anchorEl, setAnchorEl] = React.useState(null);
   const navigator = useNavigate()
+  const [recentActivities, setRecentActivities] = useState([]);
+  const addActivity = (activity) => {
+    setRecentActivities((prevActivities) => [
+      ...prevActivities,
+      { activity, date: new Date().toLocaleString() },
+    ]);
+  };
 
   const router = React.useMemo(() => {
     return {
@@ -235,7 +287,7 @@ export function Dashboard(props) {
             </MenuItem>
           </Menu>
         </Box>
-        <DemoPageContent pathname={pathname} />
+        <DemoPageContent pathname={pathname} addActivity={addActivity} recentActivities={recentActivities} />
       </DashboardLayout>
       <ToastContainer />
     </AppProvider>

@@ -6,6 +6,8 @@ import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 import SearchIcon from '@mui/icons-material/Search';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 import { BASE_URL } from "../config";
 
 export const Treatments = () => {
@@ -92,6 +94,14 @@ export const Treatments = () => {
       setNotes('');
       setXrayImage(null);
       setImagePreviewUrl(null);
+      toast.success(`Treatment added successfully`, {
+        position: "top-center",
+        autoClose: 2000,
+      });
+      addActivity(`✅ Treatment added : ${response.data.patientId}`)
+      setTimeout(() => {
+        toast.dismiss();
+      }, 2000)
     } catch (error) {
       console.error("Error creating treatment:", error);
     }
@@ -322,7 +332,7 @@ export const Treatments = () => {
           </TableContainer>
         </Box>
       </Modal>
-
+      <ToastContainer autoClose={2000} position="top-center" />
     </div >
   );
 };

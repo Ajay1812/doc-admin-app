@@ -18,16 +18,19 @@ export function LandingPage() {
         </Toolbar>
       </AppBar>
 
-      <Box sx={{ backgroundColor: '#f5f5f5', py: 8 }}>
+      <Box sx={{ backgroundColor: '#f5f5f5', py: 8, justifyContent: "center" }}>
         <Container maxWidth="lg">
           <Grid container spacing={4} alignItems="center">
             <Grid item xs={12} md={6}>
               <Box
                 component="img"
                 src={landing}
+                marginLeft={"auto"}
+                marginRight={"auto"}
+                display={"block"}
                 alt="Doctor illustration"
                 sx={{
-                  width: { xs: '100%', sm: '80%', md: '65%' },
+                  width: { xs: '60%', sm: '45%', md: '50%' },
                   borderRadius: 2,
                   boxShadow: "0 15px 30px rgba(0, 0, 0, 0.1)",
                 }}
