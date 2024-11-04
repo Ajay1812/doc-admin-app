@@ -6,13 +6,13 @@ const app = express()
 const path = require('path')
 require('dotenv').config()
 
-app.use(express.json())
 // app.use(cors())
+app.use(express.json())
 
 app.use('/admin', adminRouter) 
 
-app.use(express.static("public"))
-app.use("/*", (req,res)=>{
+app.use(express.static("public"));
+app.use("/*", (req, res) => {
   res.sendFile(path.join(__dirname, "/public/index.html"))
 })
 
