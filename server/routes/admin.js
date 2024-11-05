@@ -48,17 +48,22 @@ router.post("/signup", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
-  try{
+  try {
     const admin = await Admin.findOne({ email });
-    if (!admin || !bcrypt.compare(password, admin.password)) {
-      return res.status(401).json({ message: "Invalid username or password" });
+    if (!admin) {
+      return res.status(401).json({ message: "Email not found Please Signup." });
     }
-    const token = jwt.sign({ email, role: "admin" }, SECRET, {expiresIn: "1h"});
+    const isMatch = await bcrypt.compare(password, admin.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+    const token = jwt.sign({ email, role: "admin" }, SECRET, { expiresIn: "1h" });
     res.status(200).json({ message: "Logged in successfully", token: token });
   } catch (error) {
-    res.status(403).json({ message: "Invalid email or password" , error});
+    console.error("Login error:", error);
+    res.status(403).json({ message: "Login error", error });
   }
-});
+})
 
 // Send Email for reset password
 router.post("/sendpasswordlink", async (req, res) => {

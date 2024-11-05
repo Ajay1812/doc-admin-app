@@ -6,6 +6,8 @@ import dantveda from "../assets/dantveda.jpg";
 import { keyframes } from "@emotion/react";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 export function SignUp() {
   const navigate = useNavigate();
@@ -28,7 +30,13 @@ export function SignUp() {
     }).then((res) => {
       res.json().then((data) => {
         localStorage.setItem("token", data.token);
-        navigate("/login");
+        toast.success("Register successful!", {
+          position: "top-center",
+          autoClose: 1000,
+        });
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000)
       });
     });
   };
@@ -43,7 +51,7 @@ export function SignUp() {
     100% { opacity: 1; transform: translateX(0); }
   `;
 
-  return (
+  return (<>
     <div
       style={{
         minHeight: "100vh",
@@ -190,5 +198,7 @@ export function SignUp() {
         </Grid>
       </Card>
     </div>
+    <ToastContainer />
+  </>
   );
 }
