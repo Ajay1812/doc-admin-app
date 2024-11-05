@@ -17,4 +17,4 @@ jobs:
           chmod 600 keyfile
           mkdir -p ~/.ssh
           cp known_hosts ~/.ssh/known_hosts
-          ssh -o ServerAliveInterval=60 -i keyfile ubuntu@ec2-43-204-114-135.ap-south-1.compute.amazonaws.com "sudo bash ~/deploy.sh"
+          ssh -o ServerAliveInterval=60 -i keyfile ubuntu@ec2-43-204-100-64.ap-south-1.compute.amazonaws.com "sudo bash ~/deploy.sh"
