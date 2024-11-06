@@ -94,9 +94,39 @@ router.post("/sendpasswordlink", async (req, res) => {
       const mailOptions = {
         from: process.env.GMAIL_USER,
         to: email,
-        subject: "Sending Email for Password Reset",
-        text: `This Link is valid for 2 minutes: ${frontendUrl}/forgotpassword/${admin.id}/${setAdminToken.verifyToken}`,
-      };
+        subject: "Password Reset Request",
+        html: `
+            <div style="font-family: Arial, sans-serif; background-color: #f4f4f7; padding: 40px; text-align: center; color: #333;">
+                <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); overflow: hidden;">
+                    <div style="padding: 20px; background-color: #007bff; color: #ffffff;">
+                        <p style="font-size: 1.5em; margin: 0;">Hi there,</p>
+                    </div>
+                    <div style="padding: 30px;">
+                        <p style="font-size: 1.1em; color: #333;">
+                            Thanks for requesting a password reset. To create a new password, just click the button below.
+                        </p>
+                        <a 
+                            href="${frontendUrl}/forgotpassword/${admin.id}/${setAdminToken.verifyToken}" 
+                            style="display: inline-block; padding: 12px 25px; margin-top: 20px; color: #ffffff; background-color: #28a745; border-radius: 5px; text-decoration: none; font-size: 1em; font-weight: bold;"
+                        >
+                            Reset Password
+                        </a>
+                        <p style="margin-top: 20px; font-size: 1em; color: #555;">
+                            If you didn’t make this request, you can ignore this email and continue as usual. If you need more help, feel free to contact our support team.
+                        </p>
+                        <p style="margin-top: 20px; font-size: 0.9em; color: #888;">
+                            <a href="https://www.dantveda.com/support" style="color: #007bff; text-decoration: none;">Account Security FAQs</a> | 
+                            <a href="mailto:a.kumar01c@gmail.com" style="color: #007bff; text-decoration: none;">Contact Support</a>
+                        </p>
+                    </div>
+                    <div style="padding: 20px; background-color: #f9f9f9; color: #555; font-size: 0.9em;">
+                        <p>Thank you,</p>
+                        <p><strong>Wishing you a healthy and happy smile! Dantveda 🦷</strong></p>
+                    </div>
+                </div>
+            </div>
+        `,
+    };
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
           console.log("Error:", error);
