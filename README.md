@@ -2,6 +2,16 @@
 
 Doc Admin App is a full-stack application designed to help dentists manage patient data, appointments, treatments, and invoices efficiently. The app includes both frontend and backend components, with features such as patient management, appointment scheduling, invoicing, and password reset.
 
+- Production URL: [Doc-admin-app](https://doc-admin.codebomb.co.in/).
+
+## Watch Demo :
+
+https://github.com/user-attachments/assets/e7f19fb6-6681-4786-bf67-87482c881ffb
+
+
+
+
+
 ## Table of Contents
 
 - Project Structure
