@@ -8,10 +8,6 @@ Doc Admin App is a full-stack application designed to help dentists manage patie
 
 https://github.com/user-attachments/assets/e7f19fb6-6681-4786-bf67-87482c881ffb
 
-
-
-
-
 ## Table of Contents
 
 - Project Structure
@@ -167,3 +163,10 @@ The production files will be in the dist directory.
 ### License
 
 This project is licensed under the MIT License.
+
+## Connect with Me
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/nf-analyst/)
+[![Twitter](https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://x.com/Code_NFInite)
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Ajay1812)
+[![Portfolio](https://img.shields.io/badge/Portfolio-000000?style=for-the-badge&logo=About.me&logoColor=white)](https://ajay-portfolio-de.netlify.app/)
